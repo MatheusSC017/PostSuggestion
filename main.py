@@ -19,19 +19,17 @@ class PostSuggest:
 
     def next(self, product_characteristics):
         self.messages.append({"role": "user", "content": product_characteristics})
-
         response = self.client.chat.completions.create(
             model=self.model,
             messages=self.messages,
             temperature=0,
         )
-        suggestions = json.loads(response.model_dump_json())["choices"][0]["message"]["content"]
+        post_suggestions = json.loads(response.model_dump_json())["choices"][0]["message"]["content"]
 
-        self.messages.append({"role": "assistant", "content": suggestions})
-
-        suggestions = re.findall('\"(.+)\": \"(.+)\"', suggestions)
-        self.suggestions.extend(suggestions)
-        return suggestions
+        self.messages.append({"role": "assistant", "content": post_suggestions})
+        post_suggestions = re.findall('\"(.+)\"', post_suggestions)
+        self.suggestions.extend(post_suggestions)
+        return post_suggestions
 
     def get_suggestion(self, product_characteristics=''):
         if product_characteristics:
@@ -47,7 +45,7 @@ if __name__ == "__main__":
 
     api_key = os.environ.get('OPENAI_KEY')
 
-    post_suggest = PostSuggest(api_key='')
+    post_suggest = PostSuggest(api_key=api_key)
 
     suggestions = post_suggest.get_suggestion(
         product_characteristics="Drone 20x20cms, com capacidade de voo de até 100 metro de altitude, bateria com "
@@ -56,8 +54,11 @@ if __name__ == "__main__":
     for suggestion in suggestions:
         print(suggestion)
 
+    print("-" * 50)
+
     suggestions = post_suggest.get_suggestion(
         product_characteristics="The product is on sale until the weekend, pay attention to the durability of the "
                                 "product and the good reviews received")
     for suggestion in suggestions:
         print(suggestion)
+
