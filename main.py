@@ -23,9 +23,11 @@ class PostSuggest:
     basic_configs = {
         "Emojis": Emojis.LOW,
         "Size": 200,
-        "Type": "Products offering"
+        "Type": "Products offering",
+        "Language": "Portuguese"
     }
-    messages = []
+    messages_post = []
+    messages_adjustment = []
     suggestions = []
 
     def __init__(self, api_key, model="gpt-3.5-turbo", basic_configs={}):
@@ -41,24 +43,31 @@ class PostSuggest:
                        "media-oriented posts based on user-provided characteristics, posts must be enclosed in double "
                        "quotes."
         }
-        self.messages.append(system_config)
+        self.messages_post.append(system_config)
+
+        system_config = {
+            "role": "system",
+            "content": "You are a helpful assistant that improve post for social media based in adjustments requested "
+                       "by the user."
+        }
+        self.messages_adjustment.append(system_config)
 
     def next(self, product_characteristics):
         user_request = copy.deepcopy(self.basic_configs)
         user_request['Characteristics'] = product_characteristics
-        self.messages.append({
+        self.messages_post.append({
             "role": "user",
             "content": "Rules: \n\n" + '\n'.join([': '.join((getattr(Configs, k.upper(), k), str(v)))
                                                   for k, v in user_request.items()])
         })
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=self.messages,
+            messages=self.messages_post,
             temperature=0,
         )
         post_suggestions = json.loads(response.model_dump_json())["choices"][0]["message"]["content"]
-        
-        self.messages.append({"role": "assistant", "content": post_suggestions})
+
+        self.messages_post.append({"role": "assistant", "content": post_suggestions})
         post_suggestions = re.findall('\"(.+)\"', post_suggestions)
         self.suggestions.extend(post_suggestions)
         return post_suggestions
@@ -67,6 +76,22 @@ class PostSuggest:
         if product_characteristics:
             self.next(product_characteristics)
         return self.suggestions
+
+    def adjustment(self, post, adjustment_characteristics):
+        messages_adjustment = copy.deepcopy(self.messages_adjustment)
+        messages_adjustment.append({
+            "role": "user",
+            "content": f"Original post: \"{self.suggestions[post]}\"\n"
+                       f"adjustments requested: {adjustment_characteristics}"
+        })
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages_adjustment,
+            temperature=0,
+        )
+        post_suggestion = json.loads(response.model_dump_json())["choices"][0]["message"]["content"]
+
+        return post_suggestion
 
 
 if __name__ == "__main__":
@@ -88,10 +113,15 @@ if __name__ == "__main__":
         print(suggestion)
 
     print("*" * 50)
-    #
-    # suggestions = post_suggest.get_suggestion(
-    #     product_characteristics="The product is on sale until the weekend, pay attention to the durability of the "
-    #                             "product and the good reviews received")
-    # for suggestion in suggestions:
-    #     print(suggestion)
+
+    print(post_suggest.adjustment(1, "Adicione ênfase a altitude de voo e adicione a informação sobre uma promoção "
+                                     "com duração de 1 uma única semana"))
+
+    print("*" * 50)
+
+    suggestions = post_suggest.get_suggestion(
+        product_characteristics="The product is on sale until the weekend, pay attention to the durability of the "
+                                "product and the good reviews received")
+    for suggestion in suggestions:
+        print(suggestion)
 
