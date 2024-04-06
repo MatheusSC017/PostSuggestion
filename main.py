@@ -3,18 +3,8 @@ import copy
 import json
 import re
 
-
-class Emojis:
-    NO = "Zero emojis"
-    LOW = "1 to 5 emojis"
-    MEDIUM = "6 to 10 emojis"
-    HIGH = "More 10 emojis"
-
-
-class Configs:
-    EMOJIS = "Number de emojis by Post"
-    SIZE = "Size of the Post in characters"
-    TYPE = "Main Post Topic"
+from utils.types import Emojis, Configs
+from adjustment import AdjustmentPost
 
 
 class PostSuggest:
@@ -27,7 +17,7 @@ class PostSuggest:
         "Language": "Portuguese"
     }
     messages_post = []
-    messages_adjustment = []
+    adjustment_post = None
     suggestions = []
 
     def __init__(self, api_key, model="gpt-3.5-turbo", basic_configs={}):
@@ -44,13 +34,6 @@ class PostSuggest:
                        "quotes."
         }
         self.messages_post.append(system_config)
-
-        system_config = {
-            "role": "system",
-            "content": "You are a helpful assistant that improve post for social media based in adjustments requested "
-                       "by the user."
-        }
-        self.messages_adjustment.append(system_config)
 
     def next(self, product_characteristics):
         user_request = copy.deepcopy(self.basic_configs)
@@ -78,20 +61,10 @@ class PostSuggest:
         return self.suggestions
 
     def adjustment(self, post, adjustment_characteristics):
-        messages_adjustment = copy.deepcopy(self.messages_adjustment)
-        messages_adjustment.append({
-            "role": "user",
-            "content": f"Original post: \"{self.suggestions[post]}\"\n"
-                       f"adjustments requested: {adjustment_characteristics}"
-        })
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages_adjustment,
-            temperature=0,
-        )
-        post_suggestion = json.loads(response.model_dump_json())["choices"][0]["message"]["content"]
+        if self.adjustment_post is None:
+            self.adjustment_post = AdjustmentPost(self.client, self.model, self.suggestions[post], self.basic_configs)
 
-        return post_suggestion
+        return self.adjustment_post.adjustment(adjustment_characteristics)
 
 
 if __name__ == "__main__":
@@ -117,11 +90,11 @@ if __name__ == "__main__":
     print(post_suggest.adjustment(1, "Adicione ênfase a altitude de voo e adicione a informação sobre uma promoção "
                                      "com duração de 1 uma única semana"))
 
-    print("*" * 50)
-
-    suggestions = post_suggest.get_suggestion(
-        product_characteristics="The product is on sale until the weekend, pay attention to the durability of the "
-                                "product and the good reviews received")
-    for suggestion in suggestions:
-        print(suggestion)
+    # print("*" * 50)
+    #
+    # suggestions = post_suggest.get_suggestion(
+    #     product_characteristics="The product is on sale until the weekend, pay attention to the durability of the "
+    #                             "product and the good reviews received")
+    # for suggestion in suggestions:
+    #     print(suggestion)
 

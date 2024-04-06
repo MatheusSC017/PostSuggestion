@@ -1,6 +1,7 @@
-from main import Configs
 import json
 import copy
+
+from utils.types import Configs
 
 
 class AdjustmentPost:
