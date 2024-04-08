@@ -63,6 +63,13 @@ class PostSuggest:
     def new_adjustment(self, post):
         self.adjustment_post[post] = AdjustmentPost(self.client, self.model, self.suggestions[post], self.basic_configs)
 
+    def end_adjustment(self, post):
+        if post in self.adjustment_post.keys():
+            post_suggestion = self.adjustment_post[post].messages[-1]["content"]
+            del self.adjustment_post[post]
+            return post_suggestion
+        raise Exception("Post not found")
+
     def adjustment(self, post, adjustment_characteristics):
         if post not in self.adjustment_post.keys():
             self.new_adjustment(post)
