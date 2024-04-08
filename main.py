@@ -17,7 +17,7 @@ class PostSuggest:
         "Language": "Portuguese"
     }
     messages_post = []
-    adjustment_post = None
+    adjustment_post = {}
     suggestions = []
 
     def __init__(self, api_key, model="gpt-3.5-turbo", basic_configs={}):
@@ -60,11 +60,14 @@ class PostSuggest:
             self.next(product_characteristics)
         return self.suggestions
 
-    def adjustment(self, post, adjustment_characteristics):
-        if self.adjustment_post is None:
-            self.adjustment_post = AdjustmentPost(self.client, self.model, self.suggestions[post], self.basic_configs)
+    def new_adjustment(self, post):
+        self.adjustment_post[post] = AdjustmentPost(self.client, self.model, self.suggestions[post], self.basic_configs)
 
-        return self.adjustment_post.adjustment(adjustment_characteristics)
+    def adjustment(self, post, adjustment_characteristics):
+        if post not in self.adjustment_post.keys():
+            self.new_adjustment(post)
+
+        return self.adjustment_post[post].adjustment(adjustment_characteristics)
 
 
 if __name__ == "__main__":
@@ -90,11 +93,14 @@ if __name__ == "__main__":
     print(post_suggest.adjustment(1, "Adicione ênfase a altitude de voo e adicione a informação sobre uma promoção "
                                      "com duração de 1 uma única semana"))
 
-    # print("*" * 50)
-    #
-    # suggestions = post_suggest.get_suggestion(
-    #     product_characteristics="The product is on sale until the weekend, pay attention to the durability of the "
-    #                             "product and the good reviews received")
-    # for suggestion in suggestions:
-    #     print(suggestion)
+    print(post_suggest.adjustment(2, "Adicione ênfase a capacidade da bateria e adicione a informação sobre uma promoção "
+                                     "com duração de 1 um único dia"))
+
+    print("*" * 50)
+
+    suggestions = post_suggest.get_suggestion(
+        product_characteristics="The product is on sale until the weekend, pay attention to the durability of the "
+                                "product and the good reviews received")
+    for suggestion in suggestions:
+        print(suggestion)
 
