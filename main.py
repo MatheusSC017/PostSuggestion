@@ -76,6 +76,20 @@ class PostSuggest:
 
         return self.adjustment_post[post].adjustment(adjustment_characteristics)
 
+    def reset(self):
+        pass
+
+    # Separate in a class ImageSuggest
+    def generate_image(self):
+        pass
+
+    def improve_image(self):
+        pass
+
+    # Separate in a class to suggestion not relationed to post, but social media and business
+    def get_suggest(self):
+        pass
+
 
 if __name__ == "__main__":
     import dotenv
