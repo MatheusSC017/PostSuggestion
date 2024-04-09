@@ -77,7 +77,15 @@ class PostSuggest:
         return self.adjustment_post[post].adjustment(adjustment_characteristics)
 
     def reset(self):
-        pass
+        self.basic_configs = {
+            "Emojis": Emojis.LOW,
+            "Size": 200,
+            "Type": "Products offering",
+            "Language": "Portuguese"
+        }
+        self.messages_post = []
+        self.adjustment_post = {}
+        self.suggestions = []
 
     # Separate in a class ImageSuggest
     def generate_image(self):
