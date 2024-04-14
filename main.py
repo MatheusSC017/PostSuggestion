@@ -2,12 +2,8 @@ from core.post import PostSuggest
 import dotenv
 import os
 
-dotenv.load_dotenv()
-
 if __name__ == "__main__":
-    api_key = os.environ.get('OPENAI_KEY')
-
-    post_suggest = PostSuggest(api_key=api_key)
+    post_suggest = PostSuggest()
 
     # suggestions = post_suggest.get_suggestion(
     #     product_characteristics="Drone 20x20cms, com capacidade de voo de até 100 metro de altitude, bateria com "
@@ -40,15 +36,21 @@ if __name__ == "__main__":
                   "1 - Get suggestions to post;\n"
                   "2 - Improve a suggested post;\n"
                   "3 - Translate a suggested post;\n"
-                  "4 - Close;\n")
+                  "4 - Close;")
             option = int(input())
 
             if option == 1:
-                print("Enter with the product/service characteristics")
+                print("Enter with the product/service characteristics: ")
                 product = input()
                 suggestions = post_suggest.get_suggestion(product_characteristics=product)
                 for suggestion in suggestions:
                     print(f"\n{suggestion}")
+            elif option == 2:
+                print("Enter with the index of the suggestion: ")
+                product = int(input())
+                print("Enter with the adjustments requireds: ")
+                adjustments = input()
+                print(post_suggest.adjustment(1, adjustments))
 
             print("\n\n")
 

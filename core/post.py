@@ -3,61 +3,38 @@ import copy
 import json
 import re
 
-from ..utils.types import Emojis, Configs
+from core.base import ChatGPT
+from utils.types import Emojis
 from core.adjustment import AdjustmentPost
 
 
-class PostSuggest:
-    model = ""
-    client = None
-    basic_configs = {
-        "Emojis": Emojis.LOW,
-        "Size": 200,
-        "Type": "Products offering",
-        "Language": "Portuguese"
-    }
-    messages_post = []
+class PostSuggest(ChatGPT):
     adjustment_post = {}
     suggestions = []
 
-    def __init__(self, api_key, model="gpt-3.5-turbo", basic_configs={}):
-        self.model = model
-        self.client = OpenAI(api_key=api_key)
+    def __init__(self, *args, **kwargs):
+        super(PostSuggest, self).__init__(*args, **kwargs)
 
-        for key, value in basic_configs.items():
-            self.basic_configs[key] = value
+        if len(self.basic_configs.keys()) == 0:
+            self.basic_configs = {
+                "Emojis": Emojis.LOW,
+                "Size": 200,
+                "Type": "Products offering",
+                "Language": "Portuguese"
+            }
+        self.messages[0]['content'] = "You are a helpful assistant that suggests 3 examples of posts per request for " \
+                                      "social media-oriented posts based on user-provided characteristics, posts must" \
+                                      " be enclosed in double quotes."
 
-        system_config = {
-            "role": "system",
-            "content": "You are a helpful assistant that suggests 3 examples of posts per request for social "
-                       "media-oriented posts based on user-provided characteristics, posts must be enclosed in double "
-                       "quotes."
-        }
-        self.messages_post.append(system_config)
-
-    def next(self, product_characteristics):
-        user_request = copy.deepcopy(self.basic_configs)
-        user_request['Characteristics'] = product_characteristics
-        self.messages_post.append({
-            "role": "user",
-            "content": "Rules: \n\n" + '\n'.join([': '.join((getattr(Configs, k.upper(), k), str(v)))
-                                                  for k, v in user_request.items()])
-        })
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=self.messages_post,
-            temperature=0,
-        )
-        post_suggestions = json.loads(response.model_dump_json())["choices"][0]["message"]["content"]
-
-        self.messages_post.append({"role": "assistant", "content": post_suggestions})
+    def send_request(self, product_characteristics):
+        post_suggestions = super().send_request(product_characteristics)
         post_suggestions = re.findall('\"(.+)\"', post_suggestions)
         self.suggestions.extend(post_suggestions)
         return post_suggestions
 
     def get_suggestion(self, product_characteristics=''):
         if product_characteristics:
-            self.next(product_characteristics)
+            self.send_request(product_characteristics)
         return self.suggestions
 
     def new_adjustment(self, post):
