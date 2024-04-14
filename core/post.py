@@ -3,7 +3,7 @@ import copy
 import json
 import re
 
-from utils.types import Emojis, Configs
+from ..utils.types import Emojis, Configs
 from core.adjustment import AdjustmentPost
 
 
