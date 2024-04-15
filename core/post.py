@@ -38,7 +38,9 @@ class PostSuggest(ChatGPT):
         return self.suggestions
 
     def new_adjustment(self, post):
-        self.adjustment_post[post] = AdjustmentPost(self.client, self.model, self.suggestions[post], self.basic_configs)
+        self.adjustment_post[post] = AdjustmentPost(post=self.suggestions[post],
+                                                    basic_configs=self.basic_configs,
+                                                    model=self.model)
 
     def end_adjustment(self, post):
         if post in self.adjustment_post.keys():
