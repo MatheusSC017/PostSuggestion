@@ -1,19 +1,16 @@
-from openai import OpenAI
-import copy
-import json
 import re
 
 from core.base import ChatGPT
 from utils.types import Emojis
-from core.adjustment import AdjustmentPost
-
+from core.adjustment import AdjustmentPostAssitant
+from core.translator import TranslatorAssistant
 
 class PostSuggest(ChatGPT):
     adjustment_post = {}
     suggestions = []
 
     def __init__(self, *args, **kwargs):
-        super(PostSuggest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if len(self.basic_configs.keys()) == 0:
             self.basic_configs = {
@@ -25,6 +22,8 @@ class PostSuggest(ChatGPT):
         self.messages[0]['content'] = "You are a helpful assistant that suggests 3 examples of posts per request for " \
                                       "social media-oriented posts based on user-provided characteristics, posts must" \
                                       " be enclosed in double quotes."
+
+        self.translate_assistant = TranslatorAssistant(basic_configs=self.basic_configs, model=self.model)
 
     def send_request(self, product_characteristics):
         post_suggestions = super().send_request(product_characteristics)
@@ -38,9 +37,12 @@ class PostSuggest(ChatGPT):
         return self.suggestions
 
     def new_adjustment(self, post):
-        self.adjustment_post[post] = AdjustmentPost(post=self.suggestions[post],
-                                                    basic_configs=self.basic_configs,
-                                                    model=self.model)
+        self.adjustment_post[post] = AdjustmentPostAssitant(post=self.suggestions[post],
+                                                            basic_configs=self.basic_configs,
+                                                            model=self.model)
+
+    def translate_message(self, message):
+        return self.translate_assistant.send_request(message)
 
     def end_adjustment(self, post):
         if post in self.adjustment_post.keys():
@@ -53,7 +55,7 @@ class PostSuggest(ChatGPT):
         if post not in self.adjustment_post.keys():
             self.new_adjustment(post)
 
-        return self.adjustment_post[post].adjustment(adjustment_characteristics)
+        return self.adjustment_post[post].send_request(adjustment_characteristics)
 
     def reset(self):
         self.basic_configs = {

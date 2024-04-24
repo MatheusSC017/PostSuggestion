@@ -24,12 +24,18 @@ if __name__ == "__main__":
                 suggestions = post_suggest.get_suggestion(product_characteristics=product)
                 for suggestion in suggestions:
                     print(f"\n{suggestion}")
+
             elif option == 2:
                 print("Enter with the index of the suggestion: ")
                 product = int(input())
                 print("Enter with the adjustments requireds: ")
                 adjustments = input()
                 print(post_suggest.adjustment(1, adjustments))
+
+            elif option == 3:
+                print("Enter with the message that you want translate: ")
+                message = input()
+                print(post_suggest.translate_message(message))
 
             print("\n\n")
 
