@@ -1,7 +1,7 @@
-from utils.types import Emojis
-from core.post import PostSuggestAssistant
-from core.adjustment import AdjustmentPostAssitant
-from core.translator import TranslatorAssistant
+from Utils.types import Emojis
+from Core.post import PostSuggestAssistant
+from Core.adjustment import AdjustmentPostAssitant
+from Core.translator import TranslatorAssistant
 
 
 class OpenAIAssistants:
