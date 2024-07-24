@@ -10,14 +10,18 @@ from PyQt6.QtWidgets import (
     QTextEdit,
     QLineEdit,
     QComboBox,
-    QScrollArea
+    QScrollArea,
+    QPushButton
 )
 from PyQt6.QtGui import QAction, QIntValidator
+from Core.main import OpenAIAssistants
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.assistants = OpenAIAssistants()
+
         self.settings()
         self.init_ui()
 
@@ -84,6 +88,12 @@ class MainWindow(QMainWindow):
         self.post_content = QTextEdit()
         input_layout.addWidget(self.post_content)
 
+        generate_posts = QPushButton("Generate Posts")
+        form_options = QHBoxLayout()
+        form_options.addStretch()
+        form_options.addWidget(generate_posts)
+        input_layout.addLayout(form_options)
+
         output_layout = QVBoxLayout()
 
         output_layout.addWidget(QLabel("Suggeestions"))
@@ -104,8 +114,11 @@ class MainWindow(QMainWindow):
         self.generated_posts.addWidget(post2)
         self.generated_posts.addWidget(post3)
         self.generated_posts.addWidget(post4)
+        container = QWidget()
+        container.setLayout(self.generated_posts)
         scroll_posts = QScrollArea()
-        scroll_posts.setLayout(self.generated_posts)
+        scroll_posts.setWidget(container)
+        scroll_posts.setWidgetResizable(True)
         output_layout.addWidget(scroll_posts)
 
         main_layout.addLayout(input_layout)
