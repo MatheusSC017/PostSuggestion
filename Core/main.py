@@ -22,7 +22,10 @@ class OpenAIAssistants:
         self.post_assistant = PostSuggestAssistant(basic_configs=self.basic_configs, model=self.model)
         self.translate_assistant = TranslatorAssistant(basic_configs=self.basic_configs, model=self.model)
 
-    def get_suggestion(self, product_characteristics=''):
+    def get_suggestion(self, product_characteristics='', **kwargs):
+        for key, value in kwargs.items():
+            self.basic_configs[key] = value
+        self.post_assistant.basic_configs = self.basic_configs
         if product_characteristics:
             self.post_assistant.send_request(product_characteristics)
         return self.post_assistant.suggestions

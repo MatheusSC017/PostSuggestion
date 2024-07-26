@@ -16,6 +16,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QAction, QIntValidator
 from Core.main import OpenAIAssistants
 from dotenv import load_dotenv
+from Utils.types import Emojis
 
 
 class MainWindow(QMainWindow):
@@ -63,7 +64,7 @@ class MainWindow(QMainWindow):
         column_options_1 = QVBoxLayout()
         column_options_1.addWidget(QLabel("Emojis"))
         self.emojis = QComboBox()
-        self.emojis.addItems(["Low", "Medium", "High"])
+        self.emojis.addItems(["No", "Low", "Medium", "High"])
         column_options_1.addWidget(self.emojis)
         column_options_1.addWidget(QLabel("Type"))
         self.type = QComboBox()
@@ -115,13 +116,19 @@ class MainWindow(QMainWindow):
         self.central_widget.setLayout(main_layout)
 
     def generate_posts(self):
-        # emojis = str(self.emojis.currentText())
-        # post_type = str(self.type.currentText())
-        # language = str(self.language.currentText())
-        # size = int(self.size.text())
+        emojis = getattr(Emojis, str(self.emojis.currentText()).upper())
+        post_type = str(self.type.currentText())
+        language = str(self.language.currentText())
+        size = int(self.size.text())
         post_content = self.post_content.toPlainText()
 
-        suggestions = self.assistants.get_suggestion(product_characteristics=post_content)
+        suggestions = self.assistants.get_suggestion(
+            product_characteristics=post_content,
+            Emojis=emojis,
+            Type=post_type,
+            Language=language,
+            Size=size
+        )
         for suggestion in suggestions:
             post = QLabel(suggestion)
             post.setWordWrap(True)
