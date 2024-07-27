@@ -11,7 +11,8 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QComboBox,
     QScrollArea,
-    QPushButton
+    QPushButton,
+    QMessageBox
 )
 from PyQt6.QtGui import QAction, QIntValidator
 from Core.main import OpenAIAssistants
@@ -92,11 +93,11 @@ class MainWindow(QMainWindow):
         self.post_content.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
         input_layout.addWidget(self.post_content)
 
-        generate_posts_button = QPushButton("Generate Posts")
-        generate_posts_button.clicked.connect(self.generate_posts)
+        self.generate_posts_button = QPushButton("Generate Posts")
+        self.generate_posts_button.clicked.connect(self.generate_posts)
         form_options = QHBoxLayout()
         form_options.addStretch()
-        form_options.addWidget(generate_posts_button)
+        form_options.addWidget(self.generate_posts_button)
         input_layout.addLayout(form_options)
 
         output_layout = QVBoxLayout()
@@ -116,11 +117,26 @@ class MainWindow(QMainWindow):
         self.central_widget.setLayout(main_layout)
 
     def generate_posts(self):
+        self.generate_posts_button.setDisabled(True)
         emojis = getattr(Emojis, str(self.emojis.currentText()).upper())
         post_type = str(self.type.currentText())
         language = str(self.language.currentText())
         size = int(self.size.text())
         post_content = self.post_content.toPlainText()
+
+        if len(post_content) <= 30:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("Post content must be 30 characters or more")
+            dlg.exec()
+            return
+
+        if 100 > size > 5000:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("The generated post size must be between 100 and 5000")
+            dlg.exec()
+            return
 
         suggestions = self.assistants.get_suggestion(
             product_characteristics=post_content,
@@ -133,7 +149,10 @@ class MainWindow(QMainWindow):
             post = QLabel(suggestion)
             post.setWordWrap(True)
             post.setContentsMargins(5, 10, 5, 20)
-            self.generated_posts.addWidget(post)
+            post_container = QHBoxLayout(post)
+            post_container.addWidget(post)
+            self.generated_posts.addLayout(post_container)
+        self.generate_posts_button.setDisabled(False)
 
     def set_improve_post_ui(self):
         pass
