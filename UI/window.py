@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
         self.set_menu()
 
         self.central_widget = QWidget()
-        self.set_suggest_post_ui()
+        self.set_improve_post_ui()
         self.setCentralWidget(self.central_widget)
 
     def set_menu(self):
@@ -86,8 +86,8 @@ class MainWindow(QMainWindow):
         options = QHBoxLayout()
         options.addLayout(column_options_1)
         options.addLayout(column_options_2)
-
         input_layout.addLayout(options)
+
         input_layout.addWidget(QLabel("Type your request:"))
         self.post_content = QTextEdit()
         self.post_content.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
@@ -155,7 +155,41 @@ class MainWindow(QMainWindow):
         self.generate_posts_button.setDisabled(False)
 
     def set_improve_post_ui(self):
-        pass
+        main_layout = QHBoxLayout()
+
+        input_layout = QVBoxLayout()
+
+        input_layout.addWidget(QLabel("Post:"))
+        self.post_content = QTextEdit()
+        self.post_content.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+        input_layout.addWidget(self.post_content)
+
+        input_layout.addWidget(QLabel("Type the improvements:"))
+        self.post_improvements = QTextEdit()
+        self.post_improvements.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+        input_layout.addWidget(self.post_improvements)
+
+        self.generate_posts_button = QPushButton("Improve Post")
+        form_options = QHBoxLayout()
+        form_options.addStretch()
+        form_options.addWidget(self.generate_posts_button)
+        input_layout.addLayout(form_options)
+
+        output_layout = QVBoxLayout()
+
+        output_layout.addWidget(QLabel("History"))
+        self.generated_posts = QVBoxLayout()
+        container = QWidget()
+        container.setLayout(self.generated_posts)
+        scroll_posts = QScrollArea()
+        scroll_posts.setWidget(container)
+        scroll_posts.setWidgetResizable(True)
+        output_layout.addWidget(scroll_posts)
+
+        main_layout.addLayout(input_layout)
+        main_layout.addLayout(output_layout)
+
+        self.central_widget.setLayout(main_layout)
 
     def set_translate_post_ui(self):
         pass
