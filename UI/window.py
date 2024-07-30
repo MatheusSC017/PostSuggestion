@@ -16,15 +16,18 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QAction, QIntValidator
 from Core.main import OpenAIAssistants
+from Core.adjustment import AdjustmentPostAssitantWithoutHistory
 from dotenv import load_dotenv
 from Utils.types import Emojis
 
 
 class MainWindow(QMainWindow):
+
     def __init__(self):
         super().__init__()
         load_dotenv()
         self.assistants = OpenAIAssistants()
+        self.adjust_assistant = AdjustmentPostAssitantWithoutHistory()
 
         self.settings()
         self.init_ui()
@@ -149,7 +152,7 @@ class MainWindow(QMainWindow):
             post = QLabel(suggestion)
             post.setWordWrap(True)
             post.setContentsMargins(5, 10, 5, 20)
-            post_container = QHBoxLayout(post)
+            post_container = QHBoxLayout()
             post_container.addWidget(post)
             self.generated_posts.addLayout(post_container)
         self.generate_posts_button.setDisabled(False)
@@ -169,18 +172,19 @@ class MainWindow(QMainWindow):
         self.post_improvements.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
         input_layout.addWidget(self.post_improvements)
 
-        self.generate_posts_button = QPushButton("Improve Post")
+        self.improve_post_button = QPushButton("Improve Post")
+        self.improve_post_button.clicked.connect(self.improve_post)
         form_options = QHBoxLayout()
         form_options.addStretch()
-        form_options.addWidget(self.generate_posts_button)
+        form_options.addWidget(self.improve_post_button)
         input_layout.addLayout(form_options)
 
         output_layout = QVBoxLayout()
 
         output_layout.addWidget(QLabel("History"))
-        self.generated_posts = QVBoxLayout()
+        self.improved_posts = QVBoxLayout()
         container = QWidget()
-        container.setLayout(self.generated_posts)
+        container.setLayout(self.improved_posts)
         scroll_posts = QScrollArea()
         scroll_posts.setWidget(container)
         scroll_posts.setWidgetResizable(True)
@@ -190,6 +194,36 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(output_layout)
 
         self.central_widget.setLayout(main_layout)
+
+    def improve_post(self):
+        self.improve_post_button.setDisabled(True)
+
+        post_content = self.post_content.toPlainText()
+        post_improvements = self.post_improvements.toPlainText()
+
+        if len(post_content) <= 30:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("Post content must be 30 characters or more")
+            dlg.exec()
+            return
+
+        if len(post_improvements) <= 30:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("Post improvements must be 30 characters or more")
+            dlg.exec()
+            return
+
+        suggestion = self.adjust_assistant.adjust_post(post_content, post_improvements)
+        post = QLabel(suggestion)
+        post.setWordWrap(True)
+        post.setContentsMargins(5, 10, 5, 20)
+        post_container = QHBoxLayout()
+        post_container.addWidget(post)
+        self.improved_posts.addLayout(post_container)
+
+        self.improve_post_button.setDisabled(False)
 
     def set_translate_post_ui(self):
         pass

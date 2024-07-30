@@ -1,4 +1,7 @@
 from Core.base import ChatGPT
+from Utils.types import Configs
+import copy
+import json
 
 
 class AdjustmentPostAssitant(ChatGPT):
@@ -30,3 +33,33 @@ class AdjustmentPostAssitant(ChatGPT):
             for _ in range(2):
                 self.messages.append(self.undo_history.pop())
             self.adjusted_post.append(self.messages[-1]["content"])
+
+
+class AdjustmentPostAssitantWithoutHistory(ChatGPT):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.messages[0]['content'] = f"You are a helpful assistant that improve posts for social media based in " \
+                                      f"adjustments requested by the user. The response must contain only the post " \
+                                      f"suggested"
+
+    def send_request(self, message):
+        pass
+
+    def adjust_post(self, post, adjustments):
+        user_request = copy.deepcopy(self.basic_configs)
+        user_request['Original post'] = post
+        user_request['Adjustments'] = adjustments
+        self.messages.append({
+            "role": "user",
+            "content": "Rules: \n\n" + '\n'.join([': '.join((getattr(Configs, k.upper(), k), str(v)))
+                                                  for k, v in user_request.items()])
+        })
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=self.messages,
+            temperature=0,
+        )
+        response = json.loads(response.model_dump_json())["choices"][0]["message"]["content"]
+
+        self.messages.append({"role": "assistant", "content": response})
+        return response
