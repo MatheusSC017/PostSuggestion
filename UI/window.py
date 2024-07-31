@@ -41,7 +41,8 @@ class MainWindow(QMainWindow):
         self.set_menu()
 
         self.central_widget = QWidget()
-        self.set_improve_post_ui()
+        self.set_translate_post_ui()
+
         self.setCentralWidget(self.central_widget)
 
     def set_menu(self):
@@ -226,7 +227,42 @@ class MainWindow(QMainWindow):
         self.improve_post_button.setDisabled(False)
 
     def set_translate_post_ui(self):
-        pass
+        main_layout = QHBoxLayout()
+
+        input_layout = QVBoxLayout()
+
+        input_layout.addWidget(QLabel("Post:"))
+        self.post_content = QTextEdit()
+        self.post_content.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+        input_layout.addWidget(self.post_content)
+
+        self.translate_post_button = QPushButton("Translate Post")
+        # self.translate_post_button.clicked.connect(self.translate_post)
+        form_options = QHBoxLayout()
+        form_options.addStretch()
+        form_options.addWidget(self.translate_post_button)
+        input_layout.addLayout(form_options)
+
+        output_layout = QVBoxLayout()
+
+        output_layout.addWidget(QLabel("Translated post:"))
+        self.post_translated = QTextEdit()
+        self.post_translated.setEnabled(False)
+        self.post_translated.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+        output_layout.addWidget(self.post_translated)
+
+        language_form = QHBoxLayout()
+        language_form.addStretch()
+        self.language = QComboBox()
+        self.language.setMinimumWidth(200)
+        self.language.addItems(["English", "Potuguese", "Spanish"])
+        language_form.addWidget(self.language)
+        output_layout.addLayout(language_form)
+
+        main_layout.addLayout(input_layout)
+        main_layout.addLayout(output_layout)
+
+        self.central_widget.setLayout(main_layout)
 
 
 if __name__ == "__main__":
