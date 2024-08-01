@@ -7,7 +7,11 @@ class TranslatorAssistant(ChatGPT):
     def __init__(self, language="English", *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.messages[0]['content'] = f"You are a useful assistant who translates post into the {language} language, "
+        self.language = language
+        self.messages[0]['content'] = f"You are a useful assistant who translates post into specified language, "
+
+    def set_language(self, language):
+        self.language = language
 
     def send_request(self, message):
         self.messages.append({

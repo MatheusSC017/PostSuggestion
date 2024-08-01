@@ -237,7 +237,7 @@ class MainWindow(QMainWindow):
         input_layout.addWidget(self.post_content)
 
         self.translate_post_button = QPushButton("Translate Post")
-        # self.translate_post_button.clicked.connect(self.translate_post)
+        self.translate_post_button.clicked.connect(self.translate_post)
         form_options = QHBoxLayout()
         form_options.addStretch()
         form_options.addWidget(self.translate_post_button)
@@ -263,6 +263,24 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(output_layout)
 
         self.central_widget.setLayout(main_layout)
+
+    def translate_post(self):
+        self.translate_post_button.setDisabled(True)
+
+        post_content = self.post_content.toPlainText()
+
+        if len(post_content) <= 30:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("Post content must be 30 characters or more")
+            dlg.exec()
+            return
+
+        self.assistants.translate_assistant.set_language(str(self.language.currentText()))
+        translation = self.assistants.translate_message(post_content)
+        self.post_translated.setText(translation)
+
+        self.translate_post_button.setDisabled(False)
 
 
 if __name__ == "__main__":
