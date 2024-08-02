@@ -40,11 +40,6 @@ class MainWindow(QMainWindow):
     def init_ui(self):
         self.set_menu()
 
-        self.central_widget = QWidget()
-        self.set_translate_post_ui()
-
-        self.setCentralWidget(self.central_widget)
-
     def set_menu(self):
         menu_bar = QMenuBar(self)
         self.setMenuBar(menu_bar)
@@ -54,7 +49,9 @@ class MainWindow(QMainWindow):
         self.suggest_post_menu = QAction("Suggestion")
         self.suggest_post_menu.triggered.connect(self.set_suggest_post_ui)
         self.improve_post_menu = QAction("Improvement")
+        self.improve_post_menu.triggered.connect(self.set_improve_post_ui)
         self.translate_post_menu = QAction("Translate")
+        self.translate_post_menu.triggered.connect(self.set_translate_post_ui)
         post_assistants.addAction(self.suggest_post_menu)
         post_assistants.addAction(self.improve_post_menu)
         post_assistants.addAction(self.translate_post_menu)
@@ -118,7 +115,9 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(input_layout)
         main_layout.addLayout(output_layout)
 
-        self.central_widget.setLayout(main_layout)
+        central_widget = QWidget()
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
 
     def generate_posts(self):
         self.generate_posts_button.setDisabled(True)
@@ -194,7 +193,9 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(input_layout)
         main_layout.addLayout(output_layout)
 
-        self.central_widget.setLayout(main_layout)
+        central_widget = QWidget()
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
 
     def improve_post(self):
         self.improve_post_button.setDisabled(True)
@@ -262,7 +263,9 @@ class MainWindow(QMainWindow):
         main_layout.addLayout(input_layout)
         main_layout.addLayout(output_layout)
 
-        self.central_widget.setLayout(main_layout)
+        central_widget = QWidget()
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
 
     def translate_post(self):
         self.translate_post_button.setDisabled(True)
