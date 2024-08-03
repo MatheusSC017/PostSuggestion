@@ -162,6 +162,32 @@ class MainWindow(QMainWindow):
 
         input_layout = QVBoxLayout()
 
+        column_options_1 = QVBoxLayout()
+        column_options_1.addWidget(QLabel("Emojis"))
+        self.emojis = QComboBox()
+        self.emojis.addItems(["No", "Low", "Medium", "High"])
+        column_options_1.addWidget(self.emojis)
+        column_options_1.addWidget(QLabel("Type"))
+        self.type = QComboBox()
+        self.type.addItems(["Product", "Service", "Event", "Others"])
+        column_options_1.addWidget(self.type)
+
+        column_options_2 = QVBoxLayout()
+        column_options_2.addWidget(QLabel("Size"))
+        self.size = QLineEdit()
+        self.size.setText("100")
+        self.size.setValidator(QIntValidator(100, 5000))
+        column_options_2.addWidget(self.size)
+        column_options_2.addWidget(QLabel("Language"))
+        self.language = QComboBox()
+        self.language.addItems(["English", "Potuguese", "Spanish"])
+        column_options_2.addWidget(self.language)
+
+        options = QHBoxLayout()
+        options.addLayout(column_options_1)
+        options.addLayout(column_options_2)
+        input_layout.addLayout(options)
+
         input_layout.addWidget(QLabel("Post:"))
         self.post_content = QTextEdit()
         self.post_content.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
@@ -199,6 +225,10 @@ class MainWindow(QMainWindow):
 
     def improve_post(self):
         self.improve_post_button.setDisabled(True)
+        emojis = getattr(Emojis, str(self.emojis.currentText()).upper())
+        post_type = str(self.type.currentText())
+        language = str(self.language.currentText())
+        size = int(self.size.text())
 
         post_content = self.post_content.toPlainText()
         post_improvements = self.post_improvements.toPlainText()
@@ -217,7 +247,21 @@ class MainWindow(QMainWindow):
             dlg.exec()
             return
 
-        suggestion = self.adjust_assistant.adjust_post(post_content, post_improvements)
+        if 100 > size > 5000:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("The generated post size must be between 100 and 5000")
+            dlg.exec()
+            return
+
+        suggestion = self.adjust_assistant.adjust_post(
+            post_content,
+            post_improvements,
+            Emojis=emojis,
+            Type=post_type,
+            Language=language,
+            Size=size
+        )
         post = QLabel(suggestion)
         post.setWordWrap(True)
         post.setContentsMargins(5, 10, 5, 20)

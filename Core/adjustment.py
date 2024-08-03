@@ -45,7 +45,9 @@ class AdjustmentPostAssitantWithoutHistory(ChatGPT):
     def send_request(self, message):
         pass
 
-    def adjust_post(self, post, adjustments):
+    def adjust_post(self, post, adjustments, **kwargs):
+        for key, value in kwargs.items():
+            self.basic_configs[key] = value
         user_request = copy.deepcopy(self.basic_configs)
         user_request['Original post'] = post
         user_request['Adjustments'] = adjustments
