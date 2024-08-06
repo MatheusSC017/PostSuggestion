@@ -127,10 +127,24 @@ class MainWindow(QMainWindow):
         size = int(self.size.text())
         post_content = self.post_content.toPlainText()
 
-        if len(post_content) <= 30:
+        if emojis not in ["No", "Low", "Medium", "High"]:
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText("Post content must be 30 characters or more")
+            dlg.setText("The value for Emojis must be between [\"No\", \"Low\", \"Medium\", \"High\"]")
+            dlg.exec()
+            return
+
+        if post_type not in ["Product", "Service", "Event", "Others"]:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("The value for Emojis must be between [\"Product\", \"Service\", \"Event\", \"Others\"]")
+            dlg.exec()
+            return
+
+        if language not in ["English", "Potuguese", "Spanish"]:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("The value for Emojis must be between [\"English\", \"Potuguese\", \"Spanish\"]")
             dlg.exec()
             return
 
@@ -138,6 +152,13 @@ class MainWindow(QMainWindow):
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Error")
             dlg.setText("The generated post size must be between 100 and 5000")
+            dlg.exec()
+            return
+
+        if len(post_content) <= 30:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("Post content must be 30 characters or more")
             dlg.exec()
             return
 
@@ -233,6 +254,34 @@ class MainWindow(QMainWindow):
         post_content = self.post_content.toPlainText()
         post_improvements = self.post_improvements.toPlainText()
 
+        if emojis not in ["No", "Low", "Medium", "High"]:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("The value for Emojis must be between [\"No\", \"Low\", \"Medium\", \"High\"]")
+            dlg.exec()
+            return
+
+        if post_type not in ["Product", "Service", "Event", "Others"]:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("The value for Emojis must be between [\"Product\", \"Service\", \"Event\", \"Others\"]")
+            dlg.exec()
+            return
+
+        if language not in ["English", "Potuguese", "Spanish"]:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("The value for Emojis must be between [\"English\", \"Potuguese\", \"Spanish\"]")
+            dlg.exec()
+            return
+
+        if 100 > size > 5000:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Error")
+            dlg.setText("The generated post size must be between 100 and 5000")
+            dlg.exec()
+            return
+
         if len(post_content) <= 30:
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Error")
@@ -244,13 +293,6 @@ class MainWindow(QMainWindow):
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Error")
             dlg.setText("Post improvements must be 30 characters or more")
-            dlg.exec()
-            return
-
-        if 100 > size > 5000:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText("The generated post size must be between 100 and 5000")
             dlg.exec()
             return
 
