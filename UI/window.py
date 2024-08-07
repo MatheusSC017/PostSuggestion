@@ -21,43 +21,7 @@ from dotenv import load_dotenv
 from Utils.types import Emojis
 
 
-class MainWindow(QMainWindow):
-
-    def __init__(self):
-        super().__init__()
-        load_dotenv()
-        self.assistants = OpenAIAssistants()
-        self.adjust_assistant = AdjustmentPostAssitantWithoutHistory()
-
-        self.settings()
-        self.init_ui()
-
-    def settings(self):
-        self.setWindowTitle("AI Assitants")
-        self.setMinimumWidth(1000)
-        self.setMinimumHeight(700)
-
-    def init_ui(self):
-        self.set_menu()
-
-    def set_menu(self):
-        menu_bar = QMenuBar(self)
-        self.setMenuBar(menu_bar)
-
-        post_assistants = QMenu("Posts", self)
-
-        self.suggest_post_menu = QAction("Suggestion")
-        self.suggest_post_menu.triggered.connect(self.set_suggest_post_ui)
-        self.improve_post_menu = QAction("Improvement")
-        self.improve_post_menu.triggered.connect(self.set_improve_post_ui)
-        self.translate_post_menu = QAction("Translate")
-        self.translate_post_menu.triggered.connect(self.set_translate_post_ui)
-        post_assistants.addAction(self.suggest_post_menu)
-        post_assistants.addAction(self.improve_post_menu)
-        post_assistants.addAction(self.translate_post_menu)
-
-        menu_bar.addMenu(post_assistants)
-
+class GeneratePostUI:
     def set_suggest_post_ui(self):
         main_layout = QHBoxLayout()
 
@@ -178,6 +142,8 @@ class MainWindow(QMainWindow):
             self.generated_posts.addLayout(post_container)
         self.generate_posts_button.setDisabled(False)
 
+
+class ImprovePostUI:
     def set_improve_post_ui(self):
         main_layout = QHBoxLayout()
 
@@ -313,6 +279,8 @@ class MainWindow(QMainWindow):
 
         self.improve_post_button.setDisabled(False)
 
+
+class TranslatePostUI:
     def set_translate_post_ui(self):
         main_layout = QHBoxLayout()
 
@@ -370,6 +338,44 @@ class MainWindow(QMainWindow):
         self.post_translated.setText(translation)
 
         self.translate_post_button.setDisabled(False)
+
+
+class MainWindow(QMainWindow, GeneratePostUI, ImprovePostUI, TranslatePostUI):
+
+    def __init__(self):
+        super().__init__()
+        load_dotenv()
+        self.assistants = OpenAIAssistants()
+        self.adjust_assistant = AdjustmentPostAssitantWithoutHistory()
+
+        self.settings()
+        self.init_ui()
+
+    def settings(self):
+        self.setWindowTitle("AI Assitants")
+        self.setMinimumWidth(1000)
+        self.setMinimumHeight(700)
+
+    def init_ui(self):
+        self.set_menu()
+
+    def set_menu(self):
+        menu_bar = QMenuBar(self)
+        self.setMenuBar(menu_bar)
+
+        post_assistants = QMenu("Posts", self)
+
+        self.suggest_post_menu = QAction("Suggestion")
+        self.suggest_post_menu.triggered.connect(self.set_suggest_post_ui)
+        self.improve_post_menu = QAction("Improvement")
+        self.improve_post_menu.triggered.connect(self.set_improve_post_ui)
+        self.translate_post_menu = QAction("Translate")
+        self.translate_post_menu.triggered.connect(self.set_translate_post_ui)
+        post_assistants.addAction(self.suggest_post_menu)
+        post_assistants.addAction(self.improve_post_menu)
+        post_assistants.addAction(self.translate_post_menu)
+
+        menu_bar.addMenu(post_assistants)
 
 
 if __name__ == "__main__":
