@@ -300,59 +300,21 @@ class ImprovePostUI:
         self.post_content.setText(post)
 
 
-class StoredPosts(QWidget):
-    selectPost = pyqtSignal(str)
-
-    def __init__(self, assistant):
-        super().__init__()
-
-        self.settings()
-        self.init_ui(assistant)
-
-    def settings(self):
-        self.setWindowTitle("Stored Posts")
-        self.setMinimumWidth(500)
-        self.setMinimumHeight(700)
-
-    def init_ui(self, assistant):
-        main_layout = QVBoxLayout()
-
-        generated_posts = QVBoxLayout()
-        for post in assistant.post_assistant.suggestions:
-            post_widget = QLabel(post)
-            post_widget.setWordWrap(True)
-            post_widget.setContentsMargins(5, 10, 5, 20)
-            post_container = QHBoxLayout()
-            post_container.addWidget(post_widget)
-            post_button = QPushButton()
-            post_button.setLayout(post_container)
-            post_button.setSizePolicy(post_button.sizePolicy().horizontalPolicy(), QSizePolicy.Policy.Expanding)
-            post_button.adjustSize()
-            post_button.clicked.connect(partial(self.select_post, post))
-            generated_posts.addWidget(post_button)
-
-        container = QWidget()
-        container.setLayout(generated_posts)
-        scroll_posts = QScrollArea()
-        scroll_posts.setWidget(container)
-        scroll_posts.setWidgetResizable(True)
-        main_layout.addWidget(scroll_posts)
-
-        self.setLayout(main_layout)
-
-    @pyqtSlot(str)
-    def select_post(self, post):
-        self.selectPost.emit(post)
-        self.close()
-
-
 class TranslatePostUI:
+    stored_posts = None
+
     def set_translate_post_ui(self):
         main_layout = QHBoxLayout()
 
         input_layout = QVBoxLayout()
 
-        input_layout.addWidget(QLabel("Post:"))
+        original_post_layout = QHBoxLayout()
+        original_post_layout.addWidget(QLabel("Post:"))
+        original_post_layout.addStretch()
+        select_post_button = QPushButton("Select Stored Posts")
+        select_post_button.clicked.connect(self.open_stored_posts)
+        original_post_layout.addWidget(select_post_button)
+        input_layout.addLayout(original_post_layout)
         self.post_content = QTextEdit()
         self.post_content.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
         input_layout.addWidget(self.post_content)
@@ -404,6 +366,61 @@ class TranslatePostUI:
         self.post_translated.setText(translation)
 
         self.translate_post_button.setDisabled(False)
+
+    @pyqtSlot(str)
+    def selected_post(self, post):
+        self.post_content.setText(post)
+
+    def open_stored_posts(self):
+        self.stored_posts = StoredPosts(self.assistants)
+        self.stored_posts.selectPost.connect(self.selected_post)
+        self.stored_posts.show()
+
+
+class StoredPosts(QWidget):
+    selectPost = pyqtSignal(str)
+
+    def __init__(self, assistant):
+        super().__init__()
+
+        self.settings()
+        self.init_ui(assistant)
+
+    def settings(self):
+        self.setWindowTitle("Stored Posts")
+        self.setMinimumWidth(500)
+        self.setMinimumHeight(700)
+
+    def init_ui(self, assistant):
+        main_layout = QVBoxLayout()
+
+        generated_posts = QVBoxLayout()
+        for post in assistant.post_assistant.suggestions:
+            post_widget = QLabel(post)
+            post_widget.setWordWrap(True)
+            post_widget.setContentsMargins(5, 10, 5, 20)
+            post_container = QHBoxLayout()
+            post_container.addWidget(post_widget)
+            post_button = QPushButton()
+            post_button.setLayout(post_container)
+            post_button.setSizePolicy(post_button.sizePolicy().horizontalPolicy(), QSizePolicy.Policy.Expanding)
+            post_button.adjustSize()
+            post_button.clicked.connect(partial(self.select_post, post))
+            generated_posts.addWidget(post_button)
+
+        container = QWidget()
+        container.setLayout(generated_posts)
+        scroll_posts = QScrollArea()
+        scroll_posts.setWidget(container)
+        scroll_posts.setWidgetResizable(True)
+        main_layout.addWidget(scroll_posts)
+
+        self.setLayout(main_layout)
+
+    @pyqtSlot(str)
+    def select_post(self, post):
+        self.selectPost.emit(post)
+        self.close()
 
 
 class MainWindow(QMainWindow, GeneratePostUI, ImprovePostUI, TranslatePostUI):
