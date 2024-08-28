@@ -79,6 +79,14 @@ class GeneratePostUI:
         scroll_posts.setWidgetResizable(True)
         output_layout.addWidget(scroll_posts)
 
+        for suggestion in self.assistants.post_assistant.suggestions:
+            post = QLabel(suggestion)
+            post.setWordWrap(True)
+            post.setContentsMargins(5, 10, 5, 20)
+            post_container = QHBoxLayout()
+            post_container.addWidget(post)
+            self.generated_posts.addLayout(post_container)
+
         main_layout.addLayout(input_layout)
         main_layout.addLayout(output_layout)
 
