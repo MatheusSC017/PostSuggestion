@@ -13,7 +13,8 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QPushButton,
     QMessageBox,
-    QSizePolicy
+    QSizePolicy,
+    QInputDialog
 )
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QAction, QIntValidator
@@ -22,6 +23,9 @@ from Core.adjustment import AdjustmentPostAssitantWithoutHistory
 from Utils.types import Emojis
 from dotenv import load_dotenv
 from functools import partial
+from pathlib import Path
+
+BASE_PATH = Path(__file__).resolve().parent.parent
 
 
 class GeneratePostUI:
@@ -458,15 +462,30 @@ class MainWindow(QMainWindow, GeneratePostUI, ImprovePostUI, TranslatePostUI):
 
         self.suggest_post_menu = QAction("Suggestion")
         self.suggest_post_menu.triggered.connect(self.set_suggest_post_ui)
+        post_assistants.addAction(self.suggest_post_menu)
         self.improve_post_menu = QAction("Improvement")
         self.improve_post_menu.triggered.connect(self.set_improve_post_ui)
+        post_assistants.addAction(self.improve_post_menu)
         self.translate_post_menu = QAction("Translate")
         self.translate_post_menu.triggered.connect(self.set_translate_post_ui)
-        post_assistants.addAction(self.suggest_post_menu)
-        post_assistants.addAction(self.improve_post_menu)
         post_assistants.addAction(self.translate_post_menu)
 
+        file = QMenu("File", self)
+        self.save_history = QAction("Save")
+        self.save_history.triggered.connect(self.save)
+        file.addAction(self.save_history)
+
         menu_bar.addMenu(post_assistants)
+        menu_bar.addMenu(file)
+
+    def save(self):
+        file_name = QInputDialog(self)
+        file_name.setWindowTitle("Save History")
+        file_name.setLabelText("Enter the file name")
+        if file_name.exec():
+            with open(f"{BASE_PATH}/{file_name.textValue()}.txt", "w") as file:
+                for post in self.assistants.post_assistant.suggestions:
+                    file.write(f"{post}\n")
 
 
 if __name__ == "__main__":
