@@ -474,6 +474,9 @@ class MainWindow(QMainWindow, GeneratePostUI, ImprovePostUI, TranslatePostUI):
         self.save_history = QAction("Save")
         self.save_history.triggered.connect(self.save)
         file.addAction(self.save_history)
+        self.load_history = QAction("Load")
+        self.load_history.triggered.connect(self.load)
+        file.addAction(self.load_history)
 
         menu_bar.addMenu(post_assistants)
         menu_bar.addMenu(file)
@@ -486,6 +489,15 @@ class MainWindow(QMainWindow, GeneratePostUI, ImprovePostUI, TranslatePostUI):
             with open(f"{BASE_PATH}/{file_name.textValue()}.txt", "w") as file:
                 for post in self.assistants.post_assistant.suggestions:
                     file.write(f"{post}\n")
+
+    def load(self):
+        file_name = QInputDialog(self)
+        file_name.setWindowTitle("Load History")
+        file_name.setLabelText("Enter the file name")
+        if file_name.exec():
+            with open(f"{BASE_PATH}/{file_name.textValue()}.txt", "r") as file:
+                for post in file:
+                    self.assistants.post_assistant.suggestions.append(post)
 
 
 if __name__ == "__main__":
