@@ -159,6 +159,7 @@ class GeneratePostUI:
 
 
 class ImprovePostUI:
+    selected_post_index = None
     stored_posts = None
 
     def set_improve_post_ui(self):
@@ -285,14 +286,23 @@ class ImprovePostUI:
             dlg.exec()
             return
 
-        suggestion = self.adjust_assistant.adjust_post(
-            post_content,
-            post_improvements,
-            Emojis=getattr(Emojis, emojis.upper()),
-            Type=post_type,
-            Language=language,
-            Size=size
-        )
+        if self.selected_post_index is None:
+            suggestion = self.adjust_assistant.adjust_post(
+                post_content,
+                post_improvements,
+                Emojis=getattr(Emojis, emojis.upper()),
+                Type=post_type,
+                Language=language,
+                Size=size
+            )
+        else:
+            suggestion = self.assistants.adjustment(self.selected_post_index,
+                                                    post_improvements,
+                                                    Emojis=getattr(Emojis, emojis.upper()),
+                                                    Type=post_type,
+                                                    Language=language,
+                                                    Size=size)
+
         post = QLabel(suggestion)
         post.setWordWrap(True)
         post.setContentsMargins(5, 10, 5, 20)
@@ -304,11 +314,12 @@ class ImprovePostUI:
 
     def open_stored_posts(self):
         self.stored_posts = StoredPosts(self.assistants)
-        self.stored_posts.selectPost.connect(self.selected_post)
+        self.stored_posts.selectPost.connect(self.set_selected_post)
         self.stored_posts.show()
 
     @pyqtSlot(str)
-    def selected_post(self, post):
+    def set_selected_post(self, post):
+        self.selected_post_index = self.assistants.post_assistant.suggestions.index(post)
         self.post_content.setText(post)
 
 
@@ -486,7 +497,7 @@ class MainWindow(QMainWindow, GeneratePostUI, ImprovePostUI, TranslatePostUI):
         file_name.setWindowTitle("Save History")
         file_name.setLabelText("Enter the file name")
         if file_name.exec():
-            with open(f"{BASE_PATH}/{file_name.textValue()}.txt", "w") as file:
+            with open(f"{BASE_PATH}/Files/{file_name.textValue()}.txt", "w") as file:
                 for post in self.assistants.post_assistant.suggestions:
                     file.write(f"{post}\n")
 
@@ -495,7 +506,7 @@ class MainWindow(QMainWindow, GeneratePostUI, ImprovePostUI, TranslatePostUI):
         file_name.setWindowTitle("Load History")
         file_name.setLabelText("Enter the file name")
         if file_name.exec():
-            with open(f"{BASE_PATH}/{file_name.textValue()}.txt", "r") as file:
+            with open(f"{BASE_PATH}/Files/{file_name.textValue()}.txt", "r") as file:
                 for post in file:
                     self.assistants.post_assistant.suggestions.append(post)
 
