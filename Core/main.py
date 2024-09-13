@@ -30,13 +30,16 @@ class OpenAIAssistants:
             self.post_assistant.send_request(product_characteristics)
         return self.post_assistant.suggestions
 
-    def adjustment(self, post, adjustment_characteristics):
+    def adjustment(self, post, adjustment_characteristics, **kwargs):
         if post not in self.adjustment_post.keys():
-            self.new_adjustment(post)
+            self.new_adjustment(post, **kwargs)
 
         return self.adjustment_post[post].send_request(adjustment_characteristics)
 
-    def new_adjustment(self, post):
+    def new_adjustment(self, post, **kwargs):
+        for key, value in kwargs.items():
+            self.basic_configs[key] = value
+            
         self.adjustment_post[post] = AdjustmentPostAssitant(post=self.post_assistant.suggestions[post],
                                                             basic_configs=self.basic_configs,
                                                             model=self.model)

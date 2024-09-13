@@ -13,7 +13,8 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QPushButton,
     QMessageBox,
-    QSizePolicy
+    QSizePolicy,
+    QInputDialog
 )
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QAction, QIntValidator
@@ -22,6 +23,9 @@ from Core.adjustment import AdjustmentPostAssitantWithoutHistory
 from Utils.types import Emojis
 from dotenv import load_dotenv
 from functools import partial
+from pathlib import Path
+
+BASE_PATH = Path(__file__).resolve().parent.parent
 
 
 class GeneratePostUI:
@@ -155,6 +159,7 @@ class GeneratePostUI:
 
 
 class ImprovePostUI:
+    selected_post_index = None
     stored_posts = None
 
     def set_improve_post_ui(self):
@@ -281,14 +286,23 @@ class ImprovePostUI:
             dlg.exec()
             return
 
-        suggestion = self.adjust_assistant.adjust_post(
-            post_content,
-            post_improvements,
-            Emojis=getattr(Emojis, emojis.upper()),
-            Type=post_type,
-            Language=language,
-            Size=size
-        )
+        if self.selected_post_index is None:
+            suggestion = self.adjust_assistant.adjust_post(
+                post_content,
+                post_improvements,
+                Emojis=getattr(Emojis, emojis.upper()),
+                Type=post_type,
+                Language=language,
+                Size=size
+            )
+        else:
+            suggestion = self.assistants.adjustment(self.selected_post_index,
+                                                    post_improvements,
+                                                    Emojis=getattr(Emojis, emojis.upper()),
+                                                    Type=post_type,
+                                                    Language=language,
+                                                    Size=size)
+
         post = QLabel(suggestion)
         post.setWordWrap(True)
         post.setContentsMargins(5, 10, 5, 20)
@@ -300,11 +314,12 @@ class ImprovePostUI:
 
     def open_stored_posts(self):
         self.stored_posts = StoredPosts(self.assistants)
-        self.stored_posts.selectPost.connect(self.selected_post)
+        self.stored_posts.selectPost.connect(self.set_selected_post)
         self.stored_posts.show()
 
     @pyqtSlot(str)
-    def selected_post(self, post):
+    def set_selected_post(self, post):
+        self.selected_post_index = self.assistants.post_assistant.suggestions.index(post)
         self.post_content.setText(post)
 
 
@@ -458,15 +473,42 @@ class MainWindow(QMainWindow, GeneratePostUI, ImprovePostUI, TranslatePostUI):
 
         self.suggest_post_menu = QAction("Suggestion")
         self.suggest_post_menu.triggered.connect(self.set_suggest_post_ui)
+        post_assistants.addAction(self.suggest_post_menu)
         self.improve_post_menu = QAction("Improvement")
         self.improve_post_menu.triggered.connect(self.set_improve_post_ui)
+        post_assistants.addAction(self.improve_post_menu)
         self.translate_post_menu = QAction("Translate")
         self.translate_post_menu.triggered.connect(self.set_translate_post_ui)
-        post_assistants.addAction(self.suggest_post_menu)
-        post_assistants.addAction(self.improve_post_menu)
         post_assistants.addAction(self.translate_post_menu)
 
+        file = QMenu("File", self)
+        self.save_history = QAction("Save")
+        self.save_history.triggered.connect(self.save)
+        file.addAction(self.save_history)
+        self.load_history = QAction("Load")
+        self.load_history.triggered.connect(self.load)
+        file.addAction(self.load_history)
+
         menu_bar.addMenu(post_assistants)
+        menu_bar.addMenu(file)
+
+    def save(self):
+        file_name = QInputDialog(self)
+        file_name.setWindowTitle("Save History")
+        file_name.setLabelText("Enter the file name")
+        if file_name.exec():
+            with open(f"{BASE_PATH}/Files/{file_name.textValue()}.txt", "w") as file:
+                for post in self.assistants.post_assistant.suggestions:
+                    file.write(f"{post}\n")
+
+    def load(self):
+        file_name = QInputDialog(self)
+        file_name.setWindowTitle("Load History")
+        file_name.setLabelText("Enter the file name")
+        if file_name.exec():
+            with open(f"{BASE_PATH}/Files/{file_name.textValue()}.txt", "r") as file:
+                for post in file:
+                    self.assistants.post_assistant.suggestions.append(post)
 
 
 if __name__ == "__main__":
