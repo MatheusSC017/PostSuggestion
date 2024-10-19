@@ -18,7 +18,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QAction, QIntValidator
-from Core.main import OpenAIAssistants
+from cli import OpenAIAssistants
 from Core.adjustment import AdjustmentPostAssitantWithoutHistory
 from Utils.types import Emojis
 from dotenv import load_dotenv
@@ -509,10 +509,3 @@ class MainWindow(QMainWindow, GeneratePostUI, ImprovePostUI, TranslatePostUI):
             with open(f"{BASE_PATH}/Files/{file_name.textValue()}.txt", "r") as file:
                 for post in file:
                     self.assistants.post_assistant.suggestions.append(post)
-
-
-if __name__ == "__main__":
-    app = QApplication([])
-    main = MainWindow()
-    main.show()
-    app.exec()

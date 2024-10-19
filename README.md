@@ -2,6 +2,24 @@
 
 This project consists of creating a class for creating, updating and translating posts for social networks. The client can insert the characteristics of the product, service or event that will be the subject of their post and define some parameters such as number of characters, amount of emojis, language and others. After its creation, the post can be updated to make adjustments, in addition to being translated into other languages.
 
-# Using the project
+## Requirements
 
-The project can be run through the main.py file located in the Core module or through the graphical interface of the window.py file in UI
+### Libraries
+
+Use the command below to install all the necessary libraries
+
+> pip install -r requirements.txt
+
+You will need to create a .env file in the root of your project with an environment variable called OPENAI_KEY that represents the API key to access OpenAI models like GPT and Dall-e
+
+## Using the project
+
+The project can be run from the command line or with a user interface using the commands below.
+
+### Command line
+
+> python cli.py
+
+### User interface
+
+> python interface.py
