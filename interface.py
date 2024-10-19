@@ -1,7 +1,6 @@
-from UI.window import QApplication, MainWindow
+from UI.window import MainWindow, QApplication
 
 app = QApplication([])
 main = MainWindow()
 main.show()
 app.exec()
-

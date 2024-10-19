@@ -1,10 +1,11 @@
-from openai import OpenAI
-from abc import ABC, abstractmethod
-import dotenv
-import pathlib
-import os
 import copy
 import json
+import os
+import pathlib
+from abc import ABC, abstractmethod
+
+import dotenv
+from openai import OpenAI
 
 from Utils.patterns import singleton
 from Utils.types import Configs
@@ -26,10 +27,9 @@ class ChatGPT(ABC):
         for key, value in basic_configs.items():
             self.basic_configs[key] = value
 
-        self.messages = [{
-            "role": "system",
-            "content": ""
-        }, ]
+        self.messages = [
+            {"role": "system", "content": ""},
+        ]
 
     @property
     def client(self):
@@ -38,24 +38,33 @@ class ChatGPT(ABC):
         return self._client
 
     def _set_client(self):
-        api_key = os.environ.get('OPENAI_KEY')
+        api_key = os.environ.get("OPENAI_KEY")
         self._client = OpenAIUnique(api_key=api_key)
 
     @abstractmethod
     def send_request(self, message):
         user_request = copy.deepcopy(self.basic_configs)
-        user_request['Characteristics'] = message
-        self.messages.append({
-            "role": "user",
-            "content": "Rules: \n\n" + '\n'.join([': '.join((getattr(Configs, k.upper(), k), str(v)))
-                                                  for k, v in user_request.items()])
-        })
+        user_request["Characteristics"] = message
+        self.messages.append(
+            {
+                "role": "user",
+                "content": "Rules: \n\n"
+                + "\n".join(
+                    [
+                        ": ".join((getattr(Configs, k.upper(), k), str(v)))
+                        for k, v in user_request.items()
+                    ]
+                ),
+            }
+        )
         response = self.client.chat.completions.create(
             model=self.model,
             messages=self.messages,
             temperature=0,
         )
-        response = json.loads(response.model_dump_json())["choices"][0]["message"]["content"]
+        response = json.loads(response.model_dump_json())["choices"][0]["message"][
+            "content"
+        ]
 
         self.messages.append({"role": "assistant", "content": response})
         return response

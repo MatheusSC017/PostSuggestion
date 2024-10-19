@@ -1,29 +1,31 @@
-from PyQt6.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QHBoxLayout,
-    QVBoxLayout,
-    QMenuBar,
-    QMenu,
-    QWidget,
-    QLabel,
-    QTextEdit,
-    QLineEdit,
-    QComboBox,
-    QScrollArea,
-    QPushButton,
-    QMessageBox,
-    QSizePolicy,
-    QInputDialog
-)
+from functools import partial
+from pathlib import Path
+
+from dotenv import load_dotenv
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QAction, QIntValidator
+from PyQt6.QtWidgets import (
+    QApplication,
+    QComboBox,
+    QHBoxLayout,
+    QInputDialog,
+    QLabel,
+    QLineEdit,
+    QMainWindow,
+    QMenu,
+    QMenuBar,
+    QMessageBox,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
+
 from cli import OpenAIAssistants
 from Core.adjustment import AdjustmentPostAssitantWithoutHistory
 from Utils.types import Emojis
-from dotenv import load_dotenv
-from functools import partial
-from pathlib import Path
 
 BASE_PATH = Path(__file__).resolve().parent.parent
 
@@ -109,21 +111,27 @@ class GeneratePostUI:
         if emojis not in ["No", "Low", "Medium", "High"]:
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText("The value for Emojis must be between [\"No\", \"Low\", \"Medium\", \"High\"]")
+            dlg.setText(
+                'The value for Emojis must be between ["No", "Low", "Medium", "High"]'
+            )
             dlg.exec()
             return
 
         if post_type not in ["Product", "Service", "Event", "Others"]:
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText("The value for Emojis must be between [\"Product\", \"Service\", \"Event\", \"Others\"]")
+            dlg.setText(
+                'The value for Emojis must be between ["Product", "Service", "Event", "Others"]'
+            )
             dlg.exec()
             return
 
         if language not in ["English", "Potuguese", "Spanish"]:
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText("The value for Emojis must be between [\"English\", \"Potuguese\", \"Spanish\"]")
+            dlg.setText(
+                'The value for Emojis must be between ["English", "Potuguese", "Spanish"]'
+            )
             dlg.exec()
             return
 
@@ -146,7 +154,7 @@ class GeneratePostUI:
             Emojis=getattr(Emojis, emojis.upper()),
             Type=post_type,
             Language=language,
-            Size=size
+            Size=size,
         )
         for suggestion in suggestions:
             post = QLabel(suggestion)
@@ -247,21 +255,27 @@ class ImprovePostUI:
         if emojis not in ["No", "Low", "Medium", "High"]:
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText("The value for Emojis must be between [\"No\", \"Low\", \"Medium\", \"High\"]")
+            dlg.setText(
+                'The value for Emojis must be between ["No", "Low", "Medium", "High"]'
+            )
             dlg.exec()
             return
 
         if post_type not in ["Product", "Service", "Event", "Others"]:
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText("The value for Emojis must be between [\"Product\", \"Service\", \"Event\", \"Others\"]")
+            dlg.setText(
+                'The value for Emojis must be between ["Product", "Service", "Event", "Others"]'
+            )
             dlg.exec()
             return
 
         if language not in ["English", "Potuguese", "Spanish"]:
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Error")
-            dlg.setText("The value for Emojis must be between [\"English\", \"Potuguese\", \"Spanish\"]")
+            dlg.setText(
+                'The value for Emojis must be between ["English", "Potuguese", "Spanish"]'
+            )
             dlg.exec()
             return
 
@@ -293,15 +307,17 @@ class ImprovePostUI:
                 Emojis=getattr(Emojis, emojis.upper()),
                 Type=post_type,
                 Language=language,
-                Size=size
+                Size=size,
             )
         else:
-            suggestion = self.assistants.adjustment(self.selected_post_index,
-                                                    post_improvements,
-                                                    Emojis=getattr(Emojis, emojis.upper()),
-                                                    Type=post_type,
-                                                    Language=language,
-                                                    Size=size)
+            suggestion = self.assistants.adjustment(
+                self.selected_post_index,
+                post_improvements,
+                Emojis=getattr(Emojis, emojis.upper()),
+                Type=post_type,
+                Language=language,
+                Size=size,
+            )
 
         post = QLabel(suggestion)
         post.setWordWrap(True)
@@ -319,7 +335,9 @@ class ImprovePostUI:
 
     @pyqtSlot(str)
     def set_selected_post(self, post):
-        self.selected_post_index = self.assistants.post_assistant.suggestions.index(post)
+        self.selected_post_index = self.assistants.post_assistant.suggestions.index(
+            post
+        )
         self.post_content.setText(post)
 
 
@@ -384,7 +402,9 @@ class TranslatePostUI:
             dlg.exec()
             return
 
-        self.assistants.translate_assistant.set_language(str(self.language.currentText()))
+        self.assistants.translate_assistant.set_language(
+            str(self.language.currentText())
+        )
         translation = self.assistants.translate_message(post_content)
         self.post_translated.setText(translation)
 
@@ -426,7 +446,10 @@ class StoredPosts(QWidget):
             post_container.addWidget(post_widget)
             post_button = QPushButton()
             post_button.setLayout(post_container)
-            post_button.setSizePolicy(post_button.sizePolicy().horizontalPolicy(), QSizePolicy.Policy.Expanding)
+            post_button.setSizePolicy(
+                post_button.sizePolicy().horizontalPolicy(),
+                QSizePolicy.Policy.Expanding,
+            )
             post_button.adjustSize()
             post_button.clicked.connect(partial(self.select_post, post))
             generated_posts.addWidget(post_button)

@@ -1,7 +1,7 @@
-from Utils.types import Emojis
-from Core.post import PostSuggestAssistant
 from Core.adjustment import AdjustmentPostAssitant
+from Core.post import PostSuggestAssistant
 from Core.translator import TranslatorAssistant
+from Utils.types import Emojis
 
 
 class OpenAIAssistants:
@@ -16,13 +16,17 @@ class OpenAIAssistants:
                 "Emojis": Emojis.LOW,
                 "Size": 200,
                 "Type": "Products offering",
-                "Language": "Portuguese"
+                "Language": "Portuguese",
             }
 
-        self.post_assistant = PostSuggestAssistant(basic_configs=self.basic_configs, model=self.model)
-        self.translate_assistant = TranslatorAssistant(basic_configs=self.basic_configs, model=self.model)
+        self.post_assistant = PostSuggestAssistant(
+            basic_configs=self.basic_configs, model=self.model
+        )
+        self.translate_assistant = TranslatorAssistant(
+            basic_configs=self.basic_configs, model=self.model
+        )
 
-    def get_suggestion(self, product_characteristics='', **kwargs):
+    def get_suggestion(self, product_characteristics="", **kwargs):
         for key, value in kwargs.items():
             self.basic_configs[key] = value
         self.post_assistant.basic_configs = self.basic_configs
@@ -39,10 +43,12 @@ class OpenAIAssistants:
     def new_adjustment(self, post, **kwargs):
         for key, value in kwargs.items():
             self.basic_configs[key] = value
-            
-        self.adjustment_post[post] = AdjustmentPostAssitant(post=self.post_assistant.suggestions[post],
-                                                            basic_configs=self.basic_configs,
-                                                            model=self.model)
+
+        self.adjustment_post[post] = AdjustmentPostAssitant(
+            post=self.post_assistant.suggestions[post],
+            basic_configs=self.basic_configs,
+            model=self.model,
+        )
 
     def end_adjustment(self, post):
         if post in self.adjustment_post.keys():
@@ -59,11 +65,15 @@ class OpenAIAssistants:
             "Emojis": Emojis.LOW,
             "Size": 200,
             "Type": "Products offering",
-            "Language": "Portuguese"
+            "Language": "Portuguese",
         }
         self.adjustment_post = {}
-        self.post_assistant = PostSuggestAssistant(basic_configs=self.basic_configs, model=self.model)
-        self.translate_assistant = TranslatorAssistant(basic_configs=self.basic_configs, model=self.model)
+        self.post_assistant = PostSuggestAssistant(
+            basic_configs=self.basic_configs, model=self.model
+        )
+        self.translate_assistant = TranslatorAssistant(
+            basic_configs=self.basic_configs, model=self.model
+        )
 
     # Separate in a class ImageSuggest
     def generate_image(self):
@@ -88,11 +98,13 @@ if __name__ == "__main__":
     option = 0
     while option != 4:
         try:
-            print("Choice an option:\n"
-                  "1 - Get suggestions to post;\n"
-                  "2 - Improve a suggested post;\n"
-                  "3 - Translate a suggested post;\n"
-                  "4 - Close;")
+            print(
+                "Choice an option:\n"
+                "1 - Get suggestions to post;\n"
+                "2 - Improve a suggested post;\n"
+                "3 - Translate a suggested post;\n"
+                "4 - Close;"
+            )
             option = int(input())
 
             if option == 1:
