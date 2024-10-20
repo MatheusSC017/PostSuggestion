@@ -4,27 +4,14 @@ from pathlib import Path
 from dotenv import load_dotenv
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QAction, QIntValidator
-from PyQt6.QtWidgets import (
-    QApplication,
-    QComboBox,
-    QHBoxLayout,
-    QInputDialog,
-    QLabel,
-    QLineEdit,
-    QMainWindow,
-    QMenu,
-    QMenuBar,
-    QMessageBox,
-    QPushButton,
-    QScrollArea,
-    QSizePolicy,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt6.QtWidgets import (QApplication, QComboBox, QHBoxLayout,
+                             QInputDialog, QLabel, QLineEdit, QMainWindow,
+                             QMenu, QMenuBar, QMessageBox, QPushButton,
+                             QScrollArea, QSizePolicy, QTextEdit, QVBoxLayout,
+                             QWidget)
 
-from cli import OpenAIAssistants
 from Core.adjustment import AdjustmentPostAssitantWithoutHistory
+from Core.general import OpenAIAssistants
 from Utils.types import Emojis
 
 BASE_PATH = Path(__file__).resolve().parent.parent
