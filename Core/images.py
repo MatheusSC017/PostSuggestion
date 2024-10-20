@@ -1,20 +1,13 @@
 import os
 
 import dotenv
-from openai import OpenAI
-
-from Utils.patterns import singleton
+from base import OpenAIUnique
 
 dotenv.load_dotenv()
 
 
 class Dalle:
     _client = None
-
-    def __init__(self, model="dall-e-3", size="1024x1024", quality="standard"):
-        self.model = model
-        self.size = size
-        self.quality = quality
 
     @property
     def client(self):
@@ -26,28 +19,41 @@ class Dalle:
         api_key = os.environ.get("OPENAI_KEY")
         self._client = OpenAIUnique(api_key=api_key)
 
-    def send_request(self, prompt):
+    def generate_image(self, prompt, name, size="1024x1024", quality="standard"):
+        if size not in ("256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"):
+            raise ValueError(
+                'The size must be between the listed values: ["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"], '
+                "if a value is not provided the generated image will be of the proportions 1024x1024"
+            )
+        if quality not in ("standard", "hd"):
+            raise ValueError(
+                'The quality must be between the listed values: ["standard", "hd"], if a value is not provided the generated '
+                "image will be of the quality standard"
+            )
+
+        model = "dall-e-3" if size not in ("256x256", "512x512") else "dall-e-2"
+
         response = self.client.images.generate(
-            model=self.model,
+            model=model,
             prompt=prompt,
-            size=self.size,
-            quality=self.quality,
+            size=size,
+            quality=quality,
             n=1,
         )
 
+        import urllib.request
+
+        urllib.request.urlretrieve(response.data[0].url, f"../Images/{name}.jpg")
         return response.data[0].url
-
-
-@singleton
-class OpenAIUnique(OpenAI):
-    pass
 
 
 if __name__ == "__main__":
     instance = Dalle()
 
     print(
-        instance.send_request(
-            "Logo para empresa de Energia Solar com as inicias NMV (Novo Mundo Verde)"
+        instance.generate_image(
+            "Logo para empresa de Energia Solar com as inicias NMV (Novo Mundo Verde), Utilize somente a sigla como texto",
+            "NMV",
+            size="256x256",
         )
     )
