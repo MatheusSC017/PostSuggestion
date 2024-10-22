@@ -48,6 +48,7 @@ class DalleMask(QMainWindow):
         container.setLayout(layout)
         self.setCentralWidget(container)
 
+        self.original_image = None
         self.image = None
         self.mask = None
         self.selection_start = None
@@ -59,9 +60,9 @@ class DalleMask(QMainWindow):
             self, "Open Image File", "", "Images (*.png *.xpm *.jpg)", options=options
         )
         if file_name:
+            self.original_image = QImage(file_name)
             self.image = QImage(file_name)
-            self.mask = QImage(self.image.size(), QImage.Format.Format_ARGB32)
-            self.mask.fill(Qt.GlobalColor.transparent)
+            self.mask = QImage(file_name)
             self.image_label.setPixmap(QPixmap.fromImage(self.image))
 
             self.image_label.setMouseTracking(True)
@@ -92,16 +93,10 @@ class DalleMask(QMainWindow):
 
     def update_mask(self):
         if self.image and self.selection_start and self.selection_end:
-            painter = QPainter(self.mask)
-            painter.setBrush(Qt.GlobalColor.white)
-            painter.setPen(Qt.GlobalColor.white)
-
-            rect = QRect(self.selection_start, self.selection_end).normalized()
-            painter.drawRect(rect)
-            painter.end()
+            self.paint_rectangle(self.image, False)
+            self.paint_rectangle(self.mask, True)
 
             combined_image = QImage(self.image.size(), QImage.Format.Format_ARGB32)
-            combined_image.fill(Qt.GlobalColor.transparent)
             painter = QPainter(combined_image)
             painter.drawImage(0, 0, self.image)
             painter.drawImage(0, 0, self.mask)
@@ -109,25 +104,34 @@ class DalleMask(QMainWindow):
 
             self.image_label.setPixmap(QPixmap.fromImage(combined_image))
 
+    def paint_rectangle(self, image, transparent):
+        painter = QPainter(image)
+        if transparent:
+            painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_Clear)
+            painter.setPen(Qt.GlobalColor.transparent)
+            painter.setBrush(Qt.GlobalColor.transparent)
+        else:
+            painter.setPen(Qt.GlobalColor.white)
+            painter.setBrush(Qt.GlobalColor.white)
+
+        rect = QRect(self.selection_start, self.selection_end).normalized()
+        painter.drawRect(rect)
+        painter.end()
+
     def export_image(self):
         if self.image and self.mask:
-            combined_image = QImage(self.image.size(), QImage.Format.Format_ARGB32)
-            combined_image.fill(Qt.GlobalColor.transparent)
-
-            painter = QPainter(combined_image)
-            painter.drawImage(0, 0, self.mask)
-            painter.end()
-
             options = QFileDialog.Option(0)
             file_name, _ = QFileDialog.getSaveFileName(
                 self, "Save Masked Image", "", "PNG Files (*.png)", options=options
             )
             if file_name:
-                combined_image.save(file_name, "PNG")
+                self.mask.save(f"{file_name}.png", "PNG")
 
     def clear_mask(self):
         if self.mask:
-            self.mask.fill(Qt.GlobalColor.transparent)
+            self.mask = self.original_image.copy()
+            self.image = self.original_image.copy()
+
             self.image_label.setPixmap(QPixmap.fromImage(self.image))
 
 
