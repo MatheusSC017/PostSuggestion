@@ -1,52 +1,38 @@
-import sys
 from math import trunc
 
 from PyQt6.QtCore import QPoint, QRect, Qt
 from PyQt6.QtGui import QImage, QPainter, QPixmap
-from PyQt6.QtWidgets import (
-    QApplication,
-    QFileDialog,
-    QLabel,
-    QMainWindow,
-    QPushButton,
-    QScrollArea,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt6.QtWidgets import (QFileDialog, QLabel, QPushButton, QScrollArea,
+                             QVBoxLayout, QWidget)
 
 
-class DalleMask(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Image Masking App")
-        self.setGeometry(100, 100, 800, 600)
+class DalleMaskUI:
+    def set_dalle_mask_ui(self):
+        main_layout = QVBoxLayout()
+
+        self.load_button = QPushButton("Load Image", self)
+        self.load_button.clicked.connect(self.load_image)
+        main_layout.addWidget(self.load_button)
+
+        self.clear_button = QPushButton("Clear Mask", self)
+        self.clear_button.clicked.connect(self.clear_mask)
+        main_layout.addWidget(self.clear_button)
+
+        self.export_button = QPushButton("Export Mask as PNG", self)
+        self.export_button.clicked.connect(self.export_image)
+        main_layout.addWidget(self.export_button)
 
         self.image_label = QLabel(self)
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignTop)
-
         scroll_image = QScrollArea()
         scroll_image.setWidget(self.image_label)
         scroll_image.setWidgetResizable(True)
+        main_layout.addWidget(scroll_image)
 
-        self.load_button = QPushButton("Load Image", self)
-        self.load_button.clicked.connect(self.load_image)
-
-        self.clear_button = QPushButton("Clear Mask", self)
-        self.clear_button.clicked.connect(self.clear_mask)
-
-        self.export_button = QPushButton("Export Mask as PNG", self)
-        self.export_button.clicked.connect(self.export_image)
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.load_button)
-        layout.addWidget(self.clear_button)
-        layout.addWidget(self.export_button)
-        layout.addWidget(scroll_image)
-
-        container = QWidget()
-        container.setLayout(layout)
-        self.setCentralWidget(container)
+        central_widget = QWidget()
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
 
         self.original_image = None
         self.image = None
@@ -133,10 +119,3 @@ class DalleMask(QMainWindow):
             self.image = self.original_image.copy()
 
             self.image_label.setPixmap(QPixmap.fromImage(self.image))
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = DalleMask()
-    window.show()
-    sys.exit(app.exec())

@@ -1,4 +1,5 @@
 import os
+import urllib
 
 import dotenv
 from base import OpenAIUnique
@@ -41,11 +42,28 @@ class Dalle:
             n=1,
         )
 
-        import urllib.request
-
         urllib.request.urlretrieve(response.data[0].url, f"../Images/{name}.jpg")
         return response.data[0].url
 
+    def update_image(self, prompt, image, mask, size="1024x1024"):
+        if size not in ("256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"):
+            raise ValueError(
+                'The size must be between the listed values: ["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"], '
+                "if a value is not provided the generated image will be of the proportions 1024x1024"
+            )
+
+        response = self.client.images.edit(
+            model="dall-e-2",
+            image=open(image, "rb"),
+            mask=open(mask, "rb"),
+            prompt=prompt,
+            n=1,
+            size=size
+        )
+
+        urllib.request.urlretrieve(response.data[0].url, image)
+        return response.data[0].url
+        
 
 if __name__ == "__main__":
     instance = Dalle()
