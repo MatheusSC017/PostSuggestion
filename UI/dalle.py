@@ -1,12 +1,17 @@
+from io import BytesIO
 from math import trunc
 
-from PyQt6.QtCore import QPoint, QRect, Qt
+from PyQt6.QtCore import QBuffer, QPoint, QRect, Qt
 from PyQt6.QtGui import QImage, QPainter, QPixmap
 from PyQt6.QtWidgets import (QFileDialog, QLabel, QPushButton, QScrollArea,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QLineEdit)
+
+from Core.images import Dalle
 
 
 class DalleMaskUI:
+    dalle = Dalle()
+
     def set_dalle_mask_ui(self):
         main_layout = QVBoxLayout()
 
@@ -21,6 +26,13 @@ class DalleMaskUI:
         self.export_button = QPushButton("Export Mask as PNG", self)
         self.export_button.clicked.connect(self.export_image)
         main_layout.addWidget(self.export_button)
+
+        main_layout.addWidget(QLabel("Prompt"))
+        self.prompt_image = QLineEdit()
+        main_layout.addWidget(self.prompt_image)
+        self.edit_image = QPushButton("Edit image", self)
+        self.edit_image.clicked.connect(self.edit_image_dalle)
+        main_layout.addWidget(self.edit_image)
 
         self.image_label = QLabel(self)
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -119,3 +131,24 @@ class DalleMaskUI:
             self.image = self.original_image.copy()
 
             self.image_label.setPixmap(QPixmap.fromImage(self.image))
+
+    def edit_image_dalle(self):
+        prompt = self.prompt_image.text()
+
+        if len(prompt) < 10:
+            raise ValueError(
+                "Prompt text must contain at least 10 characters"
+            )
+
+        original_image_b = self.qimage_to_bytes(self.original_image)
+        mask_image_b = self.qimage_to_bytes(self.mask)
+
+        self.dalle.update_image(prompt, original_image_b, mask_image_b)
+
+    @staticmethod
+    def qimage_to_bytes(qimage):
+        buffer = QBuffer()
+        buffer.open(QBuffer.OpenModeFlag.ReadWrite)
+        qimage.save(buffer, "PNG")
+        buffer.seek(0)
+        return BytesIO(buffer.data())

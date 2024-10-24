@@ -1,8 +1,9 @@
 import os
+import random
 import urllib
 
 import dotenv
-from base import OpenAIUnique
+from Core.base import OpenAIUnique
 
 dotenv.load_dotenv()
 
@@ -54,16 +55,16 @@ class Dalle:
 
         response = self.client.images.edit(
             model="dall-e-2",
-            image=open(image, "rb"),
-            mask=open(mask, "rb"),
+            image=image,
+            mask=mask,
             prompt=prompt,
             n=1,
-            size=size
+            size=size,
         )
 
-        urllib.request.urlretrieve(response.data[0].url, image)
+        urllib.request.urlretrieve(response.data[0].url, f"Images/{random.randint(111111111, 999999999)}.png")
         return response.data[0].url
-        
+
 
 if __name__ == "__main__":
     instance = Dalle()
