@@ -1,8 +1,8 @@
 import os
-import random
 import urllib
 
 import dotenv
+
 from Core.base import OpenAIUnique
 
 dotenv.load_dotenv()
@@ -62,7 +62,6 @@ class Dalle:
             size=size,
         )
 
-        urllib.request.urlretrieve(response.data[0].url, f"Images/{random.randint(111111111, 999999999)}.png")
         return response.data[0].url
 
 

@@ -1,10 +1,11 @@
+import urllib
 from io import BytesIO
 from math import trunc
 
 from PyQt6.QtCore import QBuffer, QPoint, QRect, Qt
 from PyQt6.QtGui import QImage, QPainter, QPixmap
-from PyQt6.QtWidgets import (QFileDialog, QLabel, QPushButton, QScrollArea,
-                             QVBoxLayout, QWidget, QLineEdit)
+from PyQt6.QtWidgets import (QFileDialog, QLabel, QLineEdit, QPushButton,
+                             QScrollArea, QVBoxLayout, QWidget)
 
 from Core.images import Dalle
 
@@ -27,12 +28,16 @@ class DalleMaskUI:
         self.export_button.clicked.connect(self.export_image)
         main_layout.addWidget(self.export_button)
 
+        self.save_image_button = QPushButton("Save Image", self)
+        self.save_image_button.clicked.connect(self.save_image)
+        main_layout.addWidget(self.save_image_button)
+
         main_layout.addWidget(QLabel("Prompt"))
-        self.prompt_image = QLineEdit()
-        main_layout.addWidget(self.prompt_image)
-        self.edit_image = QPushButton("Edit image", self)
-        self.edit_image.clicked.connect(self.edit_image_dalle)
-        main_layout.addWidget(self.edit_image)
+        self.prompt_image_edit = QLineEdit()
+        main_layout.addWidget(self.prompt_image_edit)
+        self.edit_image_button = QPushButton("Edit image", self)
+        self.edit_image_button.clicked.connect(self.edit_image)
+        main_layout.addWidget(self.edit_image_button)
 
         self.image_label = QLabel(self)
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -132,23 +137,42 @@ class DalleMaskUI:
 
             self.image_label.setPixmap(QPixmap.fromImage(self.image))
 
-    def edit_image_dalle(self):
-        prompt = self.prompt_image.text()
+    def edit_image(self):
+        prompt = self.prompt_image_edit.text()
 
         if len(prompt) < 10:
-            raise ValueError(
-                "Prompt text must contain at least 10 characters"
+            raise ValueError("Prompt text must contain at least 10 characters")
+
+        original_image_b = qimage_to_bytes(self.original_image)
+        mask_image_b = qimage_to_bytes(self.mask)
+
+        link_new_image = self.dalle.update_image(prompt, original_image_b, mask_image_b)
+        self.original_image = load_image_from_url(link_new_image)
+        self.image = self.original_image.copy()
+        self.mask = self.original_image.copy()
+        self.image_label.setPixmap(QPixmap.fromImage(self.image))
+
+    def save_image(self):
+        if self.original_image:
+            options = QFileDialog.Option(0)
+            file_name, _ = QFileDialog.getSaveFileName(
+                self, "Save Image", "", "PNG Files (*.png)", options=options
             )
+            if file_name:
+                self.original_image.save(f"{file_name}.png", "PNG")
 
-        original_image_b = self.qimage_to_bytes(self.original_image)
-        mask_image_b = self.qimage_to_bytes(self.mask)
 
-        self.dalle.update_image(prompt, original_image_b, mask_image_b)
+def load_image_from_url(url):
+    response = urllib.request.urlopen(url)
+    image_data = BytesIO(response.read())
+    qimage = QImage()
+    qimage.loadFromData(image_data.read())
+    return qimage
 
-    @staticmethod
-    def qimage_to_bytes(qimage):
-        buffer = QBuffer()
-        buffer.open(QBuffer.OpenModeFlag.ReadWrite)
-        qimage.save(buffer, "PNG")
-        buffer.seek(0)
-        return BytesIO(buffer.data())
+
+def qimage_to_bytes(qimage):
+    buffer = QBuffer()
+    buffer.open(QBuffer.OpenModeFlag.ReadWrite)
+    qimage.save(buffer, "PNG")
+    buffer.seek(0)
+    return BytesIO(buffer.data())
