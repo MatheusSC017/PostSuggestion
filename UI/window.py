@@ -6,14 +6,19 @@ from PyQt6.QtWidgets import QInputDialog, QMainWindow, QMenu, QMenuBar
 
 from Core.adjustment import AdjustmentPostAssitantWithoutHistory
 from Core.general import OpenAIAssistants
-from UI.dalle import DalleMaskUI
+from UI.dalle import EditImageUI, GenerateImageUI
 from UI.post import GeneratePostUI, ImprovePostUI, TranslatePostUI
 
 BASE_PATH = Path(__file__).resolve().parent.parent
 
 
 class MainWindow(
-    QMainWindow, GeneratePostUI, ImprovePostUI, TranslatePostUI, DalleMaskUI
+    QMainWindow,
+    GeneratePostUI,
+    ImprovePostUI,
+    TranslatePostUI,
+    EditImageUI,
+    GenerateImageUI,
 ):
 
     def __init__(self):
@@ -56,9 +61,12 @@ class MainWindow(
         post_assistants.addAction(self.load_history)
 
         dalle_assistants = QMenu("Images", self)
-        self.create_mask_menu = QAction("Mask")
-        self.create_mask_menu.triggered.connect(self.set_dalle_mask_ui)
-        dalle_assistants.addAction(self.create_mask_menu)
+        self.generate_image_menu = QAction("Create")
+        self.generate_image_menu.triggered.connect(self.set_generate_image_ui)
+        dalle_assistants.addAction(self.generate_image_menu)
+        self.edit_image_menu = QAction("Edit")
+        self.edit_image_menu.triggered.connect(self.set_image_edit_ui)
+        dalle_assistants.addAction(self.edit_image_menu)
 
         menu_bar.addMenu(post_assistants)
         menu_bar.addMenu(dalle_assistants)

@@ -5,15 +5,65 @@ from math import trunc
 from PyQt6.QtCore import QBuffer, QPoint, QRect, Qt
 from PyQt6.QtGui import QImage, QPainter, QPixmap
 from PyQt6.QtWidgets import (QFileDialog, QLabel, QLineEdit, QPushButton,
-                             QScrollArea, QVBoxLayout, QWidget)
+                             QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
 
 from Core.images import Dalle
 
 
-class DalleMaskUI:
+class GenerateImageUI:
     dalle = Dalle()
 
-    def set_dalle_mask_ui(self):
+    def set_generate_image_ui(self):
+        main_layout = QVBoxLayout()
+
+        self.prompt_label = QLabel("Prompt to generate image")
+        self.prompt_label.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
+        self.prompt_label.adjustSize()
+        main_layout.addWidget(self.prompt_label)
+        self.prompt_image_edit = QLineEdit()
+        main_layout.addWidget(self.prompt_image_edit)
+        self.generate_image_button = QPushButton("Generate Image")
+        self.generate_image_button.clicked.connect(self.generate_image)
+        main_layout.addWidget(self.generate_image_button)
+
+        self.save_image_button = QPushButton("Save Image")
+        self.save_image_button.clicked.connect(self.save_generated_image)
+        main_layout.addWidget(self.save_image_button)
+
+        self.image_label = QLabel()
+        main_layout.addWidget(self.image_label)
+
+        central_widget = QWidget()
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
+
+        self.image = None
+
+    def generate_image(self):
+        prompt = self.prompt_image_edit.text()
+        if len(prompt) < 10:
+            raise ValueError("Prompt text must contain at least 10 characters")
+
+        image_url = self.dalle.generate_image(prompt)
+        self.image = load_image_from_url(image_url)
+        self.image_label.setPixmap(QPixmap.fromImage(self.image))
+
+    def save_generated_image(self):
+        if self.image:
+            options = QFileDialog.Option(0)
+            file_name, _ = QFileDialog.getSaveFileName(
+                self, "Save Image", "", "PNG Files (*.png)", options=options
+            )
+            if file_name:
+                self.image.save(f"{file_name}.png", "PNG")
+
+
+class EditImageUI:
+    dalle = Dalle()
+
+    def set_image_edit_ui(self):
         main_layout = QVBoxLayout()
 
         self.load_button = QPushButton("Load Image", self)
