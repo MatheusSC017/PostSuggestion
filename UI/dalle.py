@@ -114,8 +114,11 @@ class EditImageUI:
         )
         if file_name:
             self.original_image = QImage(file_name)
-            self.image = QImage(file_name)
-            self.mask = QImage(file_name)
+            self.original_image = self.original_image.convertToFormat(
+                QImage.Format.Format_RGBA64
+            )
+            self.image = self.original_image.copy()
+            self.mask = self.original_image.copy()
             self.image_label.setPixmap(QPixmap.fromImage(self.image))
 
             self.image_label.setMouseTracking(True)
@@ -198,6 +201,9 @@ class EditImageUI:
 
         link_new_image = self.dalle.update_image(prompt, original_image_b, mask_image_b)
         self.original_image = load_image_from_url(link_new_image)
+        self.original_image = self.original_image.convertToFormat(
+            QImage.Format.Format_RGBA64
+        )
         self.image = self.original_image.copy()
         self.mask = self.original_image.copy()
         self.image_label.setPixmap(QPixmap.fromImage(self.image))
