@@ -4,8 +4,9 @@ from math import trunc
 
 from PyQt6.QtCore import QBuffer, QPoint, QRect, Qt
 from PyQt6.QtGui import QImage, QPainter, QPixmap
-from PyQt6.QtWidgets import (QFileDialog, QLabel, QLineEdit, QPushButton,
-                             QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (QComboBox, QFileDialog, QHBoxLayout, QLabel,
+                             QLineEdit, QMessageBox, QPushButton, QScrollArea,
+                             QSizePolicy, QVBoxLayout, QWidget)
 
 from Core.images import Dalle
 
@@ -16,14 +17,49 @@ class GenerateImageUI:
     def set_generate_image_ui(self):
         main_layout = QVBoxLayout()
 
-        self.prompt_label = QLabel("Prompt to generate image")
-        self.prompt_label.setSizePolicy(
+        configs_layout = QHBoxLayout()
+
+        prompt_layout = QVBoxLayout()
+        prompt_label = QLabel("Prompt to generate image")
+        prompt_label.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
         )
-        self.prompt_label.adjustSize()
-        main_layout.addWidget(self.prompt_label)
+        prompt_label.adjustSize()
+        prompt_layout.addWidget(prompt_label)
         self.prompt_image_edit = QLineEdit()
-        main_layout.addWidget(self.prompt_image_edit)
+        prompt_layout.addWidget(self.prompt_image_edit)
+        configs_layout.addLayout(prompt_layout)
+
+        size_layout = QVBoxLayout()
+        size_label = QLabel("Size")
+        size_label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        size_label.adjustSize()
+        size_layout.addWidget(size_label)
+        self.size_combobox = QComboBox()
+        self.size_combobox.addItems(
+            [
+                "256x256",
+                "512x512",
+                "1024x1024",
+                "1792x1024",
+                "1024x1792",
+            ]
+        )
+        size_layout.addWidget(self.size_combobox)
+        configs_layout.addLayout(size_layout)
+
+        quality_layout = QVBoxLayout()
+        quality_label = QLabel("Quality")
+        quality_label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        quality_label.adjustSize()
+        quality_layout.addWidget(quality_label)
+        self.quality_combobox = QComboBox()
+        self.quality_combobox.addItems(["standard", "hd"])
+        quality_layout.addWidget(self.quality_combobox)
+        configs_layout.addLayout(quality_layout)
+
+        main_layout.addLayout(configs_layout)
+
         self.generate_image_button = QPushButton("Generate Image")
         self.generate_image_button.clicked.connect(self.generate_image)
         main_layout.addWidget(self.generate_image_button)
@@ -42,13 +78,19 @@ class GenerateImageUI:
         self.image = None
 
     def generate_image(self):
-        prompt = self.prompt_image_edit.text()
-        if len(prompt) < 10:
-            raise ValueError("Prompt text must contain at least 10 characters")
+        try:
+            prompt = self.prompt_image_edit.text()
+            size = str(self.size_combobox.currentText())
+            quality = str(self.quality_combobox.currentText())
 
-        image_url = self.dalle.generate_image(prompt)
-        self.image = load_image_from_url(image_url)
-        self.image_label.setPixmap(QPixmap.fromImage(self.image))
+            image_url = self.dalle.generate_image(prompt, size, quality)
+            self.image = load_image_from_url(image_url)
+            self.image_label.setPixmap(QPixmap.fromImage(self.image))
+        except ValueError as e:
+            error_message = QMessageBox()
+            error_message.setWindowTitle("Error generating image")
+            error_message.setText(str(e))
+            error_message.exec()
 
     def save_generated_image(self):
         if self.image:
@@ -66,25 +108,51 @@ class EditImageUI:
     def set_image_edit_ui(self):
         main_layout = QVBoxLayout()
 
+        options_layout = QHBoxLayout()
+
         self.load_button = QPushButton("Load Image", self)
         self.load_button.clicked.connect(self.load_image)
-        main_layout.addWidget(self.load_button)
+        options_layout.addWidget(self.load_button)
 
         self.clear_button = QPushButton("Clear Mask", self)
         self.clear_button.clicked.connect(self.clear_mask)
-        main_layout.addWidget(self.clear_button)
+        options_layout.addWidget(self.clear_button)
 
         self.export_button = QPushButton("Export Mask as PNG", self)
         self.export_button.clicked.connect(self.export_image)
-        main_layout.addWidget(self.export_button)
+        options_layout.addWidget(self.export_button)
 
         self.save_image_button = QPushButton("Save Image", self)
         self.save_image_button.clicked.connect(self.save_image)
-        main_layout.addWidget(self.save_image_button)
+        options_layout.addWidget(self.save_image_button)
 
-        main_layout.addWidget(QLabel("Prompt"))
+        main_layout.addLayout(options_layout)
+
+        configs_layout = QHBoxLayout()
+
+        prompt_layout = QVBoxLayout()
+        prompt_layout.addWidget(QLabel("Prompt"))
         self.prompt_image_edit = QLineEdit()
-        main_layout.addWidget(self.prompt_image_edit)
+        prompt_layout.addWidget(self.prompt_image_edit)
+        configs_layout.addLayout(prompt_layout)
+
+        size_layout = QVBoxLayout()
+        size_layout.addWidget(QLabel("Size"))
+        self.size_combobox = QComboBox()
+        self.size_combobox.addItems(
+            [
+                "256x256",
+                "512x512",
+                "1024x1024",
+                "1792x1024",
+                "1024x1792",
+            ]
+        )
+        size_layout.addWidget(self.size_combobox)
+        configs_layout.addLayout(size_layout)
+
+        main_layout.addLayout(configs_layout)
+
         self.edit_image_button = QPushButton("Edit image", self)
         self.edit_image_button.clicked.connect(self.edit_image)
         main_layout.addWidget(self.edit_image_button)
@@ -191,22 +259,29 @@ class EditImageUI:
             self.image_label.setPixmap(QPixmap.fromImage(self.image))
 
     def edit_image(self):
-        prompt = self.prompt_image_edit.text()
+        try:
+            if self.original_image:
+                prompt = self.prompt_image_edit.text()
+                size = str(self.size_combobox.currentText())
 
-        if len(prompt) < 10:
-            raise ValueError("Prompt text must contain at least 10 characters")
+                original_image_b = qimage_to_bytes(self.original_image)
+                mask_image_b = qimage_to_bytes(self.mask)
 
-        original_image_b = qimage_to_bytes(self.original_image)
-        mask_image_b = qimage_to_bytes(self.mask)
-
-        link_new_image = self.dalle.update_image(prompt, original_image_b, mask_image_b)
-        self.original_image = load_image_from_url(link_new_image)
-        self.original_image = self.original_image.convertToFormat(
-            QImage.Format.Format_RGBA64
-        )
-        self.image = self.original_image.copy()
-        self.mask = self.original_image.copy()
-        self.image_label.setPixmap(QPixmap.fromImage(self.image))
+                link_new_image = self.dalle.update_image(
+                    prompt, original_image_b, mask_image_b, size
+                )
+                self.original_image = load_image_from_url(link_new_image)
+                self.original_image = self.original_image.convertToFormat(
+                    QImage.Format.Format_RGBA64
+                )
+                self.image = self.original_image.copy()
+                self.mask = self.original_image.copy()
+                self.image_label.setPixmap(QPixmap.fromImage(self.image))
+        except ValueError as e:
+            error_message = QMessageBox()
+            error_message.setWindowTitle("Error generating image")
+            error_message.setText(str(e))
+            error_message.exec()
 
     def save_image(self):
         if self.original_image:

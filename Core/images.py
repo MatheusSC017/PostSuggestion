@@ -23,6 +23,9 @@ class Dalle:
         self._client = OpenAIUnique(api_key=api_key)
 
     def generate_image(self, prompt, size="1024x1024", quality="standard"):
+        if len(prompt) < 10:
+            raise ValueError("Prompt text must contain at least 10 characters")
+
         if size not in ("256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"):
             raise ValueError(
                 'The size must be between the listed values: ["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"], '
@@ -47,6 +50,9 @@ class Dalle:
         return response.data[0].url
 
     def update_image(self, prompt, image, mask, size="1024x1024"):
+        if len(prompt) < 10:
+            raise ValueError("Prompt text must contain at least 10 characters")
+
         if size not in ("256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"):
             raise ValueError(
                 'The size must be between the listed values: ["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"], '
