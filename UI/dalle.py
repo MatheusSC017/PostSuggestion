@@ -5,13 +5,13 @@ from math import trunc
 from PyQt6.QtCore import QBuffer, QPoint, QRect, Qt
 from PyQt6.QtGui import QImage, QPainter, QPixmap
 from PyQt6.QtWidgets import (QComboBox, QFileDialog, QHBoxLayout, QLabel,
-                             QLineEdit, QMessageBox, QPushButton, QScrollArea,
-                             QSizePolicy, QVBoxLayout, QWidget)
+                             QLineEdit, QMainWindow, QMessageBox, QPushButton,
+                             QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
 
 from Core.images import Dalle
 
 
-class GenerateImageUI:
+class GenerateImageUI(QMainWindow):
     dalle = Dalle()
 
     def set_generate_image_ui(self):
@@ -102,7 +102,7 @@ class GenerateImageUI:
                 self.image.save(f"{file_name}.png", "PNG")
 
 
-class EditImageUI:
+class EditImageUI(QMainWindow):
     dalle = Dalle()
 
     def set_image_edit_ui(self):
@@ -291,6 +291,44 @@ class EditImageUI:
             )
             if file_name:
                 self.original_image.save(f"{file_name}.png", "PNG")
+
+
+class ImageVariationUI(QMainWindow):
+    def set_image_variation_ui(self):
+        main_layout = QVBoxLayout()
+
+        self.load_image_button = QPushButton("Load Image")
+        main_layout.addWidget(self.load_image_button)
+
+        prompt_label = QLabel("Prompt to variations")
+        prompt_label.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
+        prompt_label.adjustSize()
+        main_layout.addWidget(prompt_label)
+
+        self.prompt_line_edit = QLineEdit()
+        main_layout.addWidget(self.prompt_line_edit)
+
+        self.generate_variation_button = QPushButton("Generate Variations")
+        main_layout.addWidget(self.generate_variation_button)
+
+        images_layout = QHBoxLayout()
+
+        self.original_image = QLabel()
+        images_layout.addWidget(self.original_image)
+
+        variations_layout = QVBoxLayout()
+        self.variation_1 = QLabel()
+        variations_layout.addWidget(self.variation_1)
+        self.variation_2 = QLabel()
+        variations_layout.addWidget(self.variation_2)
+        images_layout.addLayout(variations_layout)
+        main_layout.addLayout(images_layout)
+
+        central_widget = QWidget()
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
 
 
 def load_image_from_url(url):

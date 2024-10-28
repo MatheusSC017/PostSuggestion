@@ -2,23 +2,23 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from PyQt6.QtGui import QAction
-from PyQt6.QtWidgets import QInputDialog, QMainWindow, QMenu, QMenuBar
+from PyQt6.QtWidgets import QInputDialog, QMenu, QMenuBar
 
 from Core.adjustment import AdjustmentPostAssitantWithoutHistory
 from Core.general import OpenAIAssistants
-from UI.dalle import EditImageUI, GenerateImageUI
+from UI.dalle import EditImageUI, GenerateImageUI, ImageVariationUI
 from UI.post import GeneratePostUI, ImprovePostUI, TranslatePostUI
 
 BASE_PATH = Path(__file__).resolve().parent.parent
 
 
 class MainWindow(
-    QMainWindow,
     GeneratePostUI,
     ImprovePostUI,
     TranslatePostUI,
     EditImageUI,
     GenerateImageUI,
+    ImageVariationUI,
 ):
 
     def __init__(self):
@@ -67,6 +67,9 @@ class MainWindow(
         self.edit_image_menu = QAction("Edit")
         self.edit_image_menu.triggered.connect(self.set_image_edit_ui)
         dalle_assistants.addAction(self.edit_image_menu)
+        self.image_variation_menu = QAction("Variations")
+        self.image_variation_menu.triggered.connect(self.set_image_variation_ui)
+        dalle_assistants.addAction(self.image_variation_menu)
 
         menu_bar.addMenu(post_assistants)
         menu_bar.addMenu(dalle_assistants)

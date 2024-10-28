@@ -4,15 +4,16 @@ from pathlib import Path
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QIntValidator
 from PyQt6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
-                             QMessageBox, QPushButton, QScrollArea,
-                             QSizePolicy, QTextEdit, QVBoxLayout, QWidget)
+                             QMainWindow, QMessageBox, QPushButton,
+                             QScrollArea, QSizePolicy, QTextEdit, QVBoxLayout,
+                             QWidget)
 
 from Utils.types import Emojis
 
 BASE_PATH = Path(__file__).resolve().parent.parent
 
 
-class GeneratePostUI:
+class GeneratePostUI(QMainWindow):
     def set_suggest_post_ui(self):
         main_layout = QHBoxLayout()
 
@@ -148,7 +149,7 @@ class GeneratePostUI:
         self.generate_posts_button.setDisabled(False)
 
 
-class ImprovePostUI:
+class ImprovePostUI(QMainWindow):
     selected_post_index = None
     stored_posts = None
 
@@ -323,7 +324,7 @@ class ImprovePostUI:
         self.post_content.setText(post)
 
 
-class TranslatePostUI:
+class TranslatePostUI(QMainWindow):
     stored_posts = None
 
     def set_translate_post_ui(self):
