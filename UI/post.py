@@ -3,18 +3,29 @@ from pathlib import Path
 
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QIntValidator
-from PyQt6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
-                             QMainWindow, QMessageBox, QPushButton,
-                             QScrollArea, QSizePolicy, QTextEdit, QVBoxLayout,
-                             QWidget)
+from PyQt6.QtWidgets import (
+    QComboBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
+from Core.base import ErrorHandling
 from Core.post import PostSuggestAssistant
 from Utils.types import Emojis
 
 BASE_PATH = Path(__file__).resolve().parent.parent
 
 
-class GeneratePostUI(QMainWindow):
+class GeneratePostUI(QMainWindow, ErrorHandling):
     post_suggest_assistant = PostSuggestAssistant()
 
     def set_suggest_post_ui(self):
@@ -95,44 +106,29 @@ class GeneratePostUI(QMainWindow):
         post_content = self.post_content.toPlainText()
 
         if emojis not in ["No", "Low", "Medium", "High"]:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText(
+            self.error_handling(
                 'The value for Emojis must be between ["No", "Low", "Medium", "High"]'
             )
-            dlg.exec()
             return
 
         if post_type not in ["Product", "Service", "Event", "Others"]:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText(
+            self.error_handling(
                 'The value for Emojis must be between ["Product", "Service", "Event", "Others"]'
             )
-            dlg.exec()
             return
 
         if language not in ["English", "Potuguese", "Spanish"]:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText(
+            self.error_handling(
                 'The value for Emojis must be between ["English", "Potuguese", "Spanish"]'
             )
-            dlg.exec()
             return
 
         if 100 > size > 5000:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText("The generated post size must be between 100 and 5000")
-            dlg.exec()
+            self.error_handling("The generated post size must be between 100 and 5000")
             return
 
         if len(post_content) <= 30:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText("Post content must be 30 characters or more")
-            dlg.exec()
+            self.error_handling("Post content must be 30 characters or more")
             return
 
         suggestions = self.post_suggest_assistant.get_suggestions(
@@ -153,7 +149,7 @@ class GeneratePostUI(QMainWindow):
         self.generate_posts_button.setDisabled(False)
 
 
-class ImprovePostUI(QMainWindow):
+class ImprovePostUI(QMainWindow, ErrorHandling):
     selected_post_index = None
     stored_posts = None
 
@@ -240,51 +236,33 @@ class ImprovePostUI(QMainWindow):
         post_improvements = self.post_improvements.toPlainText()
 
         if emojis not in ["No", "Low", "Medium", "High"]:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText(
+            self.error_handling(
                 'The value for Emojis must be between ["No", "Low", "Medium", "High"]'
             )
-            dlg.exec()
             return
 
         if post_type not in ["Product", "Service", "Event", "Others"]:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText(
+            self.error_handling(
                 'The value for Emojis must be between ["Product", "Service", "Event", "Others"]'
             )
-            dlg.exec()
             return
 
         if language not in ["English", "Potuguese", "Spanish"]:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText(
+            self.error_handling(
                 'The value for Emojis must be between ["English", "Potuguese", "Spanish"]'
             )
-            dlg.exec()
             return
 
         if 100 > size > 5000:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText("The generated post size must be between 100 and 5000")
-            dlg.exec()
+            self.error_handling("The generated post size must be between 100 and 5000")
             return
 
         if len(post_content) <= 30:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText("Post content must be 30 characters or more")
-            dlg.exec()
+            self.error_handling("Post content must be 30 characters or more")
             return
 
         if len(post_improvements) <= 30:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText("Post improvements must be 30 characters or more")
-            dlg.exec()
+            self.error_handling("Post improvements must be 30 characters or more")
             return
 
         if self.selected_post_index is None:
@@ -328,7 +306,7 @@ class ImprovePostUI(QMainWindow):
         self.post_content.setText(post)
 
 
-class TranslatePostUI(QMainWindow):
+class TranslatePostUI(QMainWindow, ErrorHandling):
     stored_posts = None
 
     def set_translate_post_ui(self):
@@ -383,10 +361,7 @@ class TranslatePostUI(QMainWindow):
         post_content = self.post_content.toPlainText()
 
         if len(post_content) <= 30:
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Error")
-            dlg.setText("Post content must be 30 characters or more")
-            dlg.exec()
+            self.error_handling("Post content must be 30 characters or more")
             return
 
         self.assistants.translate_assistant.set_language(
