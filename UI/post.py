@@ -8,12 +8,15 @@ from PyQt6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
                              QScrollArea, QSizePolicy, QTextEdit, QVBoxLayout,
                              QWidget)
 
+from Core.post import PostSuggestAssistant
 from Utils.types import Emojis
 
 BASE_PATH = Path(__file__).resolve().parent.parent
 
 
 class GeneratePostUI(QMainWindow):
+    post_suggest_assistant = PostSuggestAssistant()
+
     def set_suggest_post_ui(self):
         main_layout = QHBoxLayout()
 
@@ -132,13 +135,14 @@ class GeneratePostUI(QMainWindow):
             dlg.exec()
             return
 
-        suggestions = self.assistants.get_suggestion(
+        suggestions = self.post_suggest_assistant.get_suggestions(
             product_characteristics=post_content,
             Emojis=getattr(Emojis, emojis.upper()),
             Type=post_type,
             Language=language,
             Size=size,
         )
+
         for suggestion in suggestions:
             post = QLabel(suggestion)
             post.setWordWrap(True)
