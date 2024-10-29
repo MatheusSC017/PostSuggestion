@@ -9,7 +9,6 @@ from PyQt6.QtWidgets import (
     QLabel,
     QLineEdit,
     QMainWindow,
-    QMessageBox,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -23,6 +22,29 @@ from Core.post import PostSuggestAssistant
 from Utils.types import Emojis
 
 BASE_PATH = Path(__file__).resolve().parent.parent
+
+VALIDATIONS = {
+    "Emojis": (
+        lambda emojis: emojis not in ["No", "Low", "Medium", "High"],
+        'The value for Emojis must be between ["No", "Low", "Medium", "High"]',
+    ),
+    "Type": (
+        lambda post_type: post_type not in ["Product", "Service", "Event", "Others"],
+        'The value for Emojis must be between ["Product", "Service", "Event", "Others"]',
+    ),
+    "Language": (
+        lambda language: language not in ["English", "Potuguese", "Spanish"],
+        'The value for Emojis must be between ["English", "Potuguese", "Spanish"]',
+    ),
+    "Size": (
+        lambda size: 100 > size > 5000,
+        "The generated post size must be between 100 and 5000",
+    ),
+    "Content": (
+        lambda post_content: len(post_content) <= 30,
+        "Post content/improvements must be 30 characters or more",
+    ),
+}
 
 
 class GeneratePostUI(QMainWindow, ErrorHandling):
@@ -105,31 +127,13 @@ class GeneratePostUI(QMainWindow, ErrorHandling):
         size = int(self.size.text())
         post_content = self.post_content.toPlainText()
 
-        if emojis not in ["No", "Low", "Medium", "High"]:
-            self.error_handling(
-                'The value for Emojis must be between ["No", "Low", "Medium", "High"]'
-            )
-            return
-
-        if post_type not in ["Product", "Service", "Event", "Others"]:
-            self.error_handling(
-                'The value for Emojis must be between ["Product", "Service", "Event", "Others"]'
-            )
-            return
-
-        if language not in ["English", "Potuguese", "Spanish"]:
-            self.error_handling(
-                'The value for Emojis must be between ["English", "Potuguese", "Spanish"]'
-            )
-            return
-
-        if 100 > size > 5000:
-            self.error_handling("The generated post size must be between 100 and 5000")
-            return
-
-        if len(post_content) <= 30:
-            self.error_handling("Post content must be 30 characters or more")
-            return
+        for field, value in zip(
+            ["Emojis", "Type", "Language", "Size", "Content"],
+            [emojis, post_type, language, size, post_content],
+        ):
+            if field in VALIDATIONS and VALIDATIONS[field][0](value):
+                self.error_handling(VALIDATIONS[field][1])
+                return
 
         suggestions = self.post_suggest_assistant.get_suggestions(
             product_characteristics=post_content,
@@ -235,35 +239,13 @@ class ImprovePostUI(QMainWindow, ErrorHandling):
         post_content = self.post_content.toPlainText()
         post_improvements = self.post_improvements.toPlainText()
 
-        if emojis not in ["No", "Low", "Medium", "High"]:
-            self.error_handling(
-                'The value for Emojis must be between ["No", "Low", "Medium", "High"]'
-            )
-            return
-
-        if post_type not in ["Product", "Service", "Event", "Others"]:
-            self.error_handling(
-                'The value for Emojis must be between ["Product", "Service", "Event", "Others"]'
-            )
-            return
-
-        if language not in ["English", "Potuguese", "Spanish"]:
-            self.error_handling(
-                'The value for Emojis must be between ["English", "Potuguese", "Spanish"]'
-            )
-            return
-
-        if 100 > size > 5000:
-            self.error_handling("The generated post size must be between 100 and 5000")
-            return
-
-        if len(post_content) <= 30:
-            self.error_handling("Post content must be 30 characters or more")
-            return
-
-        if len(post_improvements) <= 30:
-            self.error_handling("Post improvements must be 30 characters or more")
-            return
+        for field, value in zip(
+            ["Emojis", "Type", "Language", "Size", "Content", "Content"],
+            [emojis, post_type, language, size, post_content, post_improvements],
+        ):
+            if field in VALIDATIONS and VALIDATIONS[field][0](value):
+                self.error_handling(VALIDATIONS[field][1])
+                return
 
         if self.selected_post_index is None:
             suggestion = self.adjust_assistant.adjust_post(
@@ -359,14 +341,14 @@ class TranslatePostUI(QMainWindow, ErrorHandling):
         self.translate_post_button.setDisabled(True)
 
         post_content = self.post_content.toPlainText()
+        language = str(self.language.currentText())
 
-        if len(post_content) <= 30:
-            self.error_handling("Post content must be 30 characters or more")
-            return
+        for field, value in zip(["Language", "Content"], [language, post_content]):
+            if field in VALIDATIONS and VALIDATIONS[field][0](value):
+                self.error_handling(VALIDATIONS[field][1])
+                return
 
-        self.assistants.translate_assistant.set_language(
-            str(self.language.currentText())
-        )
+        self.assistants.translate_assistant.set_language(language)
         translation = self.assistants.translate_message(post_content)
         self.post_translated.setText(translation)
 
