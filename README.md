@@ -14,12 +14,6 @@ You will need to create a .env file in the root of your project with an environm
 
 ## Using the project
 
-The project can be run from the command line or with a user interface using the commands below.
-
-### Command line
-
-> python cli.py
-
-### User interface
+The project can be run with a user interface using the commands below.
 
 > python interface.py
