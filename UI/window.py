@@ -20,6 +20,7 @@ class MainWindow(
     GenerateImageUI,
     ImageVariationUI,
 ):
+    suggestions = []
 
     def __init__(self):
         super().__init__()
@@ -80,7 +81,7 @@ class MainWindow(
         file_name.setLabelText("Enter the file name")
         if file_name.exec():
             with open(f"{BASE_PATH}/Files/{file_name.textValue()}.txt", "w") as file:
-                for post in self.assistants.post_assistant.suggestions:
+                for post in self.suggestions:
                     file.write(f"{post}\n")
 
     def load(self):
@@ -90,4 +91,4 @@ class MainWindow(
         if file_name.exec():
             with open(f"{BASE_PATH}/Files/{file_name.textValue()}.txt", "r") as file:
                 for post in file:
-                    self.assistants.post_assistant.suggestions.append(post)
+                    self.suggestions.append(post)

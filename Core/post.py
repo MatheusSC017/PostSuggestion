@@ -20,7 +20,7 @@ class PostSuggestAssistant(ChatGPT):
             if key in self.basic_configs.keys():
                 self.basic_configs[key] = value
         if product_characteristics:
-            return self.send_request(product_characteristics)
+            self.send_request(product_characteristics)
         return self.suggestions
 
     def send_request(self, product_characteristics):

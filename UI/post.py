@@ -3,20 +3,12 @@ from pathlib import Path
 
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QIntValidator
-from PyQt6.QtWidgets import (
-    QComboBox,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QMainWindow,
-    QPushButton,
-    QScrollArea,
-    QSizePolicy,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
+                             QMainWindow, QPushButton, QScrollArea,
+                             QSizePolicy, QTextEdit, QVBoxLayout, QWidget)
 
+from Core.adjustment import (AdjustmentPostAssitant,
+                             AdjustmentPostAssitantWithoutHistory)
 from Core.base import ErrorHandling
 from Core.post import PostSuggestAssistant
 from Utils.types import Emojis
@@ -48,6 +40,7 @@ VALIDATIONS = {
 
 
 class GeneratePostUI(QMainWindow, ErrorHandling):
+    suggestions = []
     post_suggest_assistant = PostSuggestAssistant()
 
     def set_suggest_post_ui(self):
@@ -104,7 +97,7 @@ class GeneratePostUI(QMainWindow, ErrorHandling):
         scroll_posts.setWidgetResizable(True)
         output_layout.addWidget(scroll_posts)
 
-        for suggestion in self.assistants.post_assistant.suggestions:
+        for suggestion in self.suggestions:
             post = QLabel(suggestion)
             post.setWordWrap(True)
             post.setContentsMargins(5, 10, 5, 20)
@@ -135,7 +128,7 @@ class GeneratePostUI(QMainWindow, ErrorHandling):
                 self.error_handling(VALIDATIONS[field][1])
                 return
 
-        suggestions = self.post_suggest_assistant.get_suggestions(
+        self.suggestions = self.post_suggest_assistant.get_suggestions(
             product_characteristics=post_content,
             Emojis=getattr(Emojis, emojis.upper()),
             Type=post_type,
@@ -143,7 +136,7 @@ class GeneratePostUI(QMainWindow, ErrorHandling):
             Size=size,
         )
 
-        for suggestion in suggestions:
+        for suggestion in self.suggestions:
             post = QLabel(suggestion)
             post.setWordWrap(True)
             post.setContentsMargins(5, 10, 5, 20)
@@ -154,6 +147,9 @@ class GeneratePostUI(QMainWindow, ErrorHandling):
 
 
 class ImprovePostUI(QMainWindow, ErrorHandling):
+    adjustment_posts = {}
+    general_adjust_assistant = AdjustmentPostAssitantWithoutHistory()
+    suggestions = []
     selected_post_index = None
     stored_posts = None
 
@@ -248,7 +244,7 @@ class ImprovePostUI(QMainWindow, ErrorHandling):
                 return
 
         if self.selected_post_index is None:
-            suggestion = self.adjust_assistant.adjust_post(
+            suggestion = self.general_adjust_assistant.adjust_post(
                 post_content,
                 post_improvements,
                 Emojis=getattr(Emojis, emojis.upper()),
@@ -257,7 +253,7 @@ class ImprovePostUI(QMainWindow, ErrorHandling):
                 Size=size,
             )
         else:
-            suggestion = self.assistants.adjustment(
+            suggestion = self.adjustment(
                 self.selected_post_index,
                 post_improvements,
                 Emojis=getattr(Emojis, emojis.upper()),
@@ -275,16 +271,36 @@ class ImprovePostUI(QMainWindow, ErrorHandling):
 
         self.improve_post_button.setDisabled(False)
 
+    def adjustment(self, post, adjustment_characteristics, **kwargs):
+        if post not in self.adjustment_posts.keys():
+            self.new_adjustment(post, **kwargs)
+
+        return self.adjustment_posts[post].send_request(adjustment_characteristics)
+
+    def new_adjustment(self, post, **kwargs):
+        basic_configs = {}
+        for key, value in kwargs.items():
+            basic_configs[key] = value
+
+        self.adjustment_posts[post] = AdjustmentPostAssitant(
+            post=self.suggestions[post],
+            basic_configs=basic_configs,
+        )
+
+    def end_adjustment(self, post):
+        if post in self.adjustment_posts.keys():
+            post_suggestion = self.adjustment_posts[post].messages[-1]["content"]
+            del self.adjustment_posts[post]
+            return post_suggestion
+        raise Exception("Post not found")
+
     def open_stored_posts(self):
-        self.stored_posts = StoredPosts(self.assistants)
+        self.stored_posts = StoredPosts(self.suggestions)
         self.stored_posts.selectPost.connect(self.set_selected_post)
         self.stored_posts.show()
 
-    @pyqtSlot(str)
     def set_selected_post(self, post):
-        self.selected_post_index = self.assistants.post_assistant.suggestions.index(
-            post
-        )
+        self.selected_post_index = self.suggestions.index(post)
         self.post_content.setText(post)
 
 
@@ -367,22 +383,22 @@ class TranslatePostUI(QMainWindow, ErrorHandling):
 class StoredPosts(QWidget):
     selectPost = pyqtSignal(str)
 
-    def __init__(self, assistant):
+    def __init__(self, suggestions):
         super().__init__()
 
         self.settings()
-        self.init_ui(assistant)
+        self.init_ui(suggestions)
 
     def settings(self):
         self.setWindowTitle("Stored Posts")
         self.setMinimumWidth(500)
         self.setMinimumHeight(700)
 
-    def init_ui(self, assistant):
+    def init_ui(self, suggestions):
         main_layout = QVBoxLayout()
 
         generated_posts = QVBoxLayout()
-        for post in assistant.post_assistant.suggestions:
+        for post in suggestions:
             post_widget = QLabel(post)
             post_widget.setWordWrap(True)
             post_widget.setContentsMargins(5, 10, 5, 20)
