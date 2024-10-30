@@ -11,6 +11,7 @@ from Core.adjustment import (AdjustmentPostAssitant,
                              AdjustmentPostAssitantWithoutHistory)
 from Core.base import ErrorHandling
 from Core.post import PostSuggestAssistant
+from Core.translator import TranslatorAssistant
 from Utils.types import Emojis
 
 BASE_PATH = Path(__file__).resolve().parent.parent
@@ -305,6 +306,8 @@ class ImprovePostUI(QMainWindow, ErrorHandling):
 
 
 class TranslatePostUI(QMainWindow, ErrorHandling):
+    translate_assistant = TranslatorAssistant()
+    suggestions = []
     stored_posts = None
 
     def set_translate_post_ui(self):
@@ -364,8 +367,8 @@ class TranslatePostUI(QMainWindow, ErrorHandling):
                 self.error_handling(VALIDATIONS[field][1])
                 return
 
-        self.assistants.translate_assistant.set_language(language)
-        translation = self.assistants.translate_message(post_content)
+        self.translate_assistant.set_language(language)
+        translation = self.translate_message(post_content)
         self.post_translated.setText(translation)
 
         self.translate_post_button.setDisabled(False)
@@ -375,9 +378,12 @@ class TranslatePostUI(QMainWindow, ErrorHandling):
         self.post_content.setText(post)
 
     def open_stored_posts(self):
-        self.stored_posts = StoredPosts(self.assistants)
+        self.stored_posts = StoredPosts(self.suggestions)
         self.stored_posts.selectPost.connect(self.selected_post)
         self.stored_posts.show()
+
+    def translate_message(self, message):
+        return self.translate_assistant.send_request(message)
 
 
 class StoredPosts(QWidget):

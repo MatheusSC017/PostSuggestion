@@ -4,8 +4,6 @@ from dotenv import load_dotenv
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QInputDialog, QMenu, QMenuBar
 
-from Core.adjustment import AdjustmentPostAssitantWithoutHistory
-from Core.general import OpenAIAssistants
 from UI.dalle import EditImageUI, GenerateImageUI, ImageVariationUI
 from UI.post import GeneratePostUI, ImprovePostUI, TranslatePostUI
 
@@ -25,8 +23,6 @@ class MainWindow(
     def __init__(self):
         super().__init__()
         load_dotenv()
-        self.assistants = OpenAIAssistants()
-        self.adjust_assistant = AdjustmentPostAssitantWithoutHistory()
 
         self.settings()
         self.init_ui()
