@@ -4,9 +4,20 @@ from math import trunc
 
 from PyQt6.QtCore import QBuffer, QPoint, QRect, Qt
 from PyQt6.QtGui import QImage, QPainter, QPixmap
-from PyQt6.QtWidgets import (QComboBox, QFileDialog, QHBoxLayout, QLabel,
-                             QLineEdit, QMainWindow, QMessageBox, QPushButton,
-                             QScrollArea, QSizePolicy, QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (
+    QComboBox,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QVBoxLayout,
+    QWidget,
+)
 
 from Core.images import Dalle
 
@@ -111,7 +122,7 @@ class EditImageUI(QMainWindow):
         options_layout = QHBoxLayout()
 
         self.load_button = QPushButton("Load Image", self)
-        self.load_button.clicked.connect(self.load_image)
+        self.load_button.clicked.connect(self.load_image_edit)
         options_layout.addWidget(self.load_button)
 
         self.clear_button = QPushButton("Clear Mask", self)
@@ -175,7 +186,7 @@ class EditImageUI(QMainWindow):
         self.selection_start = None
         self.selection_end = None
 
-    def load_image(self):
+    def load_image_edit(self):
         options = QFileDialog.Option(0)
         file_name, _ = QFileDialog.getOpenFileName(
             self, "Open Image File", "", "Images (*.png *.xpm *.jpg)", options=options
@@ -279,7 +290,7 @@ class EditImageUI(QMainWindow):
                 self.image_label.setPixmap(QPixmap.fromImage(self.image))
         except ValueError as e:
             error_message = QMessageBox()
-            error_message.setWindowTitle("Error generating image")
+            error_message.setWindowTitle("Error editing image")
             error_message.setText(str(e))
             error_message.exec()
 
@@ -294,10 +305,13 @@ class EditImageUI(QMainWindow):
 
 
 class ImageVariationUI(QMainWindow):
+    dalle = Dalle()
+
     def set_image_variation_ui(self):
         main_layout = QVBoxLayout()
 
         self.load_image_button = QPushButton("Load Image")
+        self.load_image_button.clicked.connect(self.load_image_variation)
         main_layout.addWidget(self.load_image_button)
 
         prompt_label = QLabel("Prompt to variations")
@@ -307,28 +321,73 @@ class ImageVariationUI(QMainWindow):
         prompt_label.adjustSize()
         main_layout.addWidget(prompt_label)
 
-        self.prompt_line_edit = QLineEdit()
-        main_layout.addWidget(self.prompt_line_edit)
+        self.prompt_image_edit = QLineEdit()
+        main_layout.addWidget(self.prompt_image_edit)
 
         self.generate_variation_button = QPushButton("Generate Variations")
+        self.generate_variation_button.clicked.connect(self.get_variations)
         main_layout.addWidget(self.generate_variation_button)
 
         images_layout = QHBoxLayout()
 
-        self.original_image = QLabel()
-        images_layout.addWidget(self.original_image)
+        self.image_label = QLabel("teste")
+        images_layout.addWidget(self.image_label)
 
         variations_layout = QVBoxLayout()
-        self.variation_1 = QLabel()
-        variations_layout.addWidget(self.variation_1)
-        self.variation_2 = QLabel()
-        variations_layout.addWidget(self.variation_2)
+        self.variation_1_label = QLabel("teste")
+        variations_layout.addWidget(self.variation_1_label)
+        self.variation_2_label = QLabel("teste")
+        variations_layout.addWidget(self.variation_2_label)
         images_layout.addLayout(variations_layout)
-        main_layout.addLayout(images_layout)
+
+        images_container = QWidget()
+        images_container.setLayout(images_layout)
+
+        scroll_image = QScrollArea()
+        scroll_image.setWidget(images_container)
+        scroll_image.setWidgetResizable(True)
+        main_layout.addWidget(scroll_image)
 
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
+
+        self.original_image = None
+        self.variation_1_image = None
+        self.variation_2_image = None
+
+    def load_image_variation(self):
+        options = QFileDialog.Option(0)
+        file_name, _ = QFileDialog.getOpenFileName(
+            self, "Open Image File", "", "Images (*.png *.xpm *.jpg)", options=options
+        )
+        if file_name:
+            self.original_image = QImage(file_name)
+            self.image_label.setPixmap(QPixmap.fromImage(self.original_image))
+
+    def get_variations(self):
+        try:
+            if self.original_image:
+                prompt = self.prompt_image_edit.text()
+
+                original_image_b = qimage_to_bytes(self.original_image)
+
+                link_new_images = self.dalle.generate_variations(
+                    prompt, original_image_b
+                )
+                self.variation_1_image = load_image_from_url(link_new_images[0])
+                self.variation_2_image = load_image_from_url(link_new_images[1])
+                self.variation_1_label.setPixmap(
+                    QPixmap.fromImage(self.variation_1_image)
+                )
+                self.variation_2_label.setPixmap(
+                    QPixmap.fromImage(self.variation_2_image)
+                )
+        except ValueError as e:
+            error_message = QMessageBox()
+            error_message.setWindowTitle("Error generating variations from the image")
+            error_message.setText(str(e))
+            error_message.exec()
 
 
 def load_image_from_url(url):
