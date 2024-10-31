@@ -2,7 +2,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from PyQt6.QtGui import QAction
-from PyQt6.QtWidgets import QInputDialog, QMenu, QMenuBar
+from PyQt6.QtWidgets import QInputDialog, QMainWindow, QMenu, QMenuBar
 
 from UI.dalle import EditImageUI, GenerateImageUI, ImageVariationUI
 from UI.post import GeneratePostUI, ImprovePostUI, TranslatePostUI
@@ -14,11 +14,9 @@ class MainWindow(
     GeneratePostUI,
     ImprovePostUI,
     TranslatePostUI,
-    EditImageUI,
-    GenerateImageUI,
-    ImageVariationUI,
 ):
     suggestions = []
+    main_window = None
 
     def __init__(self):
         super().__init__()
@@ -70,6 +68,18 @@ class MainWindow(
 
         menu_bar.addMenu(post_assistants)
         menu_bar.addMenu(dalle_assistants)
+
+    def set_generate_image_ui(self):
+        self.main_window = GenerateImageUI()
+        self.setCentralWidget(self.main_window)
+
+    def set_image_edit_ui(self):
+        self.main_window = EditImageUI()
+        self.setCentralWidget(self.main_window)
+
+    def set_image_variation_ui(self):
+        self.main_window = ImageVariationUI()
+        self.setCentralWidget(self.main_window)
 
     def save(self):
         file_name = QInputDialog(self)
