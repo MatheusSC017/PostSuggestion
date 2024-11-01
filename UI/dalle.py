@@ -342,7 +342,9 @@ class ImageVariationUI(QWidget):
         self.original_image = None
         self.original_pixmap = None
         self.variation_1_image = None
+        self.variation_1_pixmap = None
         self.variation_2_image = None
+        self.variation_2_pixmap = None
 
     def load_image(self):
         options = QFileDialog.Option(0)
@@ -352,7 +354,8 @@ class ImageVariationUI(QWidget):
         if file_name:
             self.original_image = QImage(file_name)
             self.original_pixmap = QPixmap.fromImage(self.original_image)
-            self.update_label_image()
+
+            self.resize_images()
 
     def get_variations(self):
         try:
@@ -366,17 +369,48 @@ class ImageVariationUI(QWidget):
                 )
                 self.variation_1_image = load_image_from_url(link_new_images[0])
                 self.variation_2_image = load_image_from_url(link_new_images[1])
-                self.variation_1_label.setPixmap(
-                    QPixmap.fromImage(self.variation_1_image)
-                )
-                self.variation_2_label.setPixmap(
-                    QPixmap.fromImage(self.variation_2_image)
-                )
+                self.variation_1_pixmap = QPixmap.fromImage(self.variation_1_image)
+                self.variation_2_pixmap = QPixmap.fromImage(self.variation_2_image)
+                self.update_label_image()
         except (ValueError, openai.OpenAIError) as e:
             error_message = QMessageBox()
             error_message.setWindowTitle("Error generating variations from the image")
             error_message.setText(str(e))
             error_message.exec()
+
+    def resizeEvent(self, event):
+        self.resize_images()
+        super().resizeEvent(event)
+
+    def resize_images(self):
+        if getattr(self, "original_pixmap", False) and self.original_pixmap:
+            screen_width = self.width()
+            self.image_label.setFixedWidth(int(screen_width * 0.70))
+            self.variation_1_label.setFixedWidth(int(screen_width * 0.25))
+            self.variation_2_label.setFixedWidth(int(screen_width * 0.25))
+
+            self.update_label_image()
+
+    def update_label_image(self):
+        scaled_pixmap = self.original_pixmap.scaled(
+            self.image_label.size(),
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        self.image_label.setPixmap(scaled_pixmap)
+        if self.variation_1_image and self.variation_2_image:
+            scaled_pixmap = self.variation_1_pixmap.scaled(
+                self.variation_1_label.size(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+            self.variation_1_label.setPixmap(scaled_pixmap)
+            scaled_pixmap = self.variation_2_pixmap.scaled(
+                self.variation_2_label.size(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+            self.variation_2_label.setPixmap(scaled_pixmap)
 
 
 def load_image_from_url(url):
