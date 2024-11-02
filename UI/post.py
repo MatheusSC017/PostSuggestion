@@ -4,8 +4,8 @@ from pathlib import Path
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QIntValidator
 from PyQt6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
-                             QMainWindow, QPushButton, QScrollArea,
-                             QSizePolicy, QTextEdit, QVBoxLayout, QWidget)
+                             QPushButton, QScrollArea, QSizePolicy, QTextEdit,
+                             QVBoxLayout, QWidget)
 
 from Core.adjustment import (AdjustmentPostAssitant,
                              AdjustmentPostAssitantWithoutHistory)
@@ -40,11 +40,12 @@ VALIDATIONS = {
 }
 
 
-class GeneratePostUI(QMainWindow, ErrorHandling):
+class GeneratePostUI(QWidget, ErrorHandling):
     suggestions = []
     post_suggest_assistant = PostSuggestAssistant()
 
-    def set_suggest_post_ui(self):
+    def __init__(self, suggestions):
+        super().__init__()
         main_layout = QHBoxLayout()
 
         input_layout = QVBoxLayout()
@@ -109,9 +110,9 @@ class GeneratePostUI(QMainWindow, ErrorHandling):
         main_layout.addLayout(input_layout)
         main_layout.addLayout(output_layout)
 
-        central_widget = QWidget()
-        central_widget.setLayout(main_layout)
-        self.setCentralWidget(central_widget)
+        self.setLayout(main_layout)
+
+        self.suggestions = suggestions
 
     def generate_posts(self):
         self.generate_posts_button.setDisabled(True)
@@ -129,13 +130,16 @@ class GeneratePostUI(QMainWindow, ErrorHandling):
                 self.error_handling(VALIDATIONS[field][1])
                 return
 
-        self.suggestions = self.post_suggest_assistant.get_suggestions(
+        new_suggestions = self.post_suggest_assistant.get_suggestions(
             product_characteristics=post_content,
             Emojis=getattr(Emojis, emojis.upper()),
             Type=post_type,
             Language=language,
             Size=size,
         )
+
+        self.suggestions.clear()
+        self.suggestions.extend(new_suggestions)
 
         for suggestion in self.suggestions:
             post = QLabel(suggestion)
@@ -147,14 +151,15 @@ class GeneratePostUI(QMainWindow, ErrorHandling):
         self.generate_posts_button.setDisabled(False)
 
 
-class ImprovePostUI(QMainWindow, ErrorHandling):
+class ImprovePostUI(QWidget, ErrorHandling):
     adjustment_posts = {}
     general_adjust_assistant = AdjustmentPostAssitantWithoutHistory()
     suggestions = []
     selected_post_index = None
     stored_posts = None
 
-    def set_improve_post_ui(self):
+    def __init__(self, suggestions):
+        super().__init__()
         main_layout = QHBoxLayout()
 
         input_layout = QVBoxLayout()
@@ -222,9 +227,9 @@ class ImprovePostUI(QMainWindow, ErrorHandling):
         main_layout.addLayout(input_layout)
         main_layout.addLayout(output_layout)
 
-        central_widget = QWidget()
-        central_widget.setLayout(main_layout)
-        self.setCentralWidget(central_widget)
+        self.setLayout(main_layout)
+
+        self.suggestions = suggestions
 
     def improve_post(self):
         self.improve_post_button.setDisabled(True)
@@ -305,12 +310,13 @@ class ImprovePostUI(QMainWindow, ErrorHandling):
         self.post_content.setText(post)
 
 
-class TranslatePostUI(QMainWindow, ErrorHandling):
+class TranslatePostUI(QWidget, ErrorHandling):
     translate_assistant = TranslatorAssistant()
     suggestions = []
     stored_posts = None
 
-    def set_translate_post_ui(self):
+    def __init__(self, suggestions):
+        super().__init__()
         main_layout = QHBoxLayout()
 
         input_layout = QVBoxLayout()
@@ -352,9 +358,9 @@ class TranslatePostUI(QMainWindow, ErrorHandling):
         main_layout.addLayout(input_layout)
         main_layout.addLayout(output_layout)
 
-        central_widget = QWidget()
-        central_widget.setLayout(main_layout)
-        self.setCentralWidget(central_widget)
+        self.setLayout(main_layout)
+
+        self.suggestions = suggestions
 
     def translate_post(self):
         self.translate_post_button.setDisabled(True)

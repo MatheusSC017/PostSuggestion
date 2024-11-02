@@ -10,11 +10,7 @@ from UI.post import GeneratePostUI, ImprovePostUI, TranslatePostUI
 BASE_PATH = Path(__file__).resolve().parent.parent
 
 
-class MainWindow(
-    GeneratePostUI,
-    ImprovePostUI,
-    TranslatePostUI,
-):
+class MainWindow(QMainWindow):
     suggestions = []
     main_window = None
 
@@ -68,6 +64,18 @@ class MainWindow(
 
         menu_bar.addMenu(post_assistants)
         menu_bar.addMenu(dalle_assistants)
+
+    def set_suggest_post_ui(self):
+        self.main_window = GeneratePostUI(self.suggestions)
+        self.setCentralWidget(self.main_window)
+
+    def set_improve_post_ui(self):
+        self.main_window = ImprovePostUI(self.suggestions)
+        self.setCentralWidget(self.main_window)
+
+    def set_translate_post_ui(self):
+        self.main_window = TranslatePostUI(self.suggestions)
+        self.setCentralWidget(self.main_window)
 
     def set_generate_image_ui(self):
         self.main_window = GenerateImageUI()
