@@ -1,14 +1,22 @@
 from functools import partial
 from pathlib import Path
 
-from PyQt6.QtCore import pyqtSignal, pyqtSlot
+from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt
 from PyQt6.QtGui import QIntValidator
-from PyQt6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
-                             QPushButton, QScrollArea, QSizePolicy, QTextEdit,
-                             QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (
+    QComboBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
-from Core.adjustment import (AdjustmentPostAssitant,
-                             AdjustmentPostAssitantWithoutHistory)
+from Core.adjustment import AdjustmentPostAssitant, AdjustmentPostAssitantWithoutHistory
 from Core.base import ErrorHandling
 from Core.post import PostSuggestAssistant
 from Core.translator import TranslatorAssistant
@@ -99,13 +107,7 @@ class GeneratePostUI(QWidget, ErrorHandling):
         scroll_posts.setWidgetResizable(True)
         output_layout.addWidget(scroll_posts)
 
-        for suggestion in self.suggestions:
-            post = QLabel(suggestion)
-            post.setWordWrap(True)
-            post.setContentsMargins(5, 10, 5, 20)
-            post_container = QHBoxLayout()
-            post_container.addWidget(post)
-            self.generated_posts.addLayout(post_container)
+        self.set_suggested_posts_labels()
 
         main_layout.addLayout(input_layout)
         main_layout.addLayout(output_layout)
@@ -141,14 +143,18 @@ class GeneratePostUI(QWidget, ErrorHandling):
         self.suggestions.clear()
         self.suggestions.extend(new_suggestions)
 
+        self.set_suggested_posts_labels()
+        self.generate_posts_button.setDisabled(False)
+
+    def set_suggested_posts_labels(self):
         for suggestion in self.suggestions:
             post = QLabel(suggestion)
+            post.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             post.setWordWrap(True)
             post.setContentsMargins(5, 10, 5, 20)
             post_container = QHBoxLayout()
             post_container.addWidget(post)
             self.generated_posts.addLayout(post_container)
-        self.generate_posts_button.setDisabled(False)
 
 
 class ImprovePostUI(QWidget, ErrorHandling):
@@ -269,6 +275,7 @@ class ImprovePostUI(QWidget, ErrorHandling):
             )
 
         post = QLabel(suggestion)
+        post.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         post.setWordWrap(True)
         post.setContentsMargins(5, 10, 5, 20)
         post_container = QHBoxLayout()
@@ -343,10 +350,19 @@ class TranslatePostUI(QWidget, ErrorHandling):
 
         output_layout = QVBoxLayout()
 
-        output_layout.addWidget(QLabel("Translated post:"))
-        self.post_translated = QTextEdit()
-        self.post_translated.setEnabled(False)
-        self.post_translated.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+        title_label = QLabel("Translated post:")
+        title_label.setContentsMargins(0, 4, 0, 4)
+        output_layout.addWidget(title_label)
+        self.post_translated = QLabel()
+        self.post_translated.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
+        self.post_translated.setStyleSheet("border: 1px solid #CACACA;")
+        self.post_translated.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+        self.post_translated.setWordWrap(True)
+        self.post_translated.setContentsMargins(5, 10, 5, 20)
         output_layout.addWidget(self.post_translated)
 
         language_form = QHBoxLayout()
