@@ -281,7 +281,9 @@ class ImprovePostUI(QWidget, ErrorHandling):
         if post not in self.adjustment_posts.keys():
             self.new_adjustment(post, **kwargs)
 
-        return self.adjustment_posts[post].send_request(adjustment_characteristics)
+        return self.adjustment_posts[post].send_request(
+            adjustment_characteristics, **kwargs
+        )
 
     def new_adjustment(self, post, **kwargs):
         basic_configs = {}

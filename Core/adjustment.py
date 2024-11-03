@@ -19,8 +19,12 @@ class AdjustmentPostAssitant(ChatGPT):
             f"contain only the post suggested"
         )
 
-    def send_request(self, message):
+    def send_request(self, message, **kwargs):
+        for key, value in kwargs.items():
+            self.basic_configs[key] = value
+
         new_post = super().send_request(message)
+
         self.undo_history = []
         self.adjusted_post.append(new_post)
         return new_post
