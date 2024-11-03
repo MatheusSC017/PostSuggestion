@@ -10,13 +10,18 @@ class TranslatorAssistant(ChatGPT):
         self.language = language
         self.messages[0][
             "content"
-        ] = f"You are a useful assistant who translates post into specified language, "
+        ] = "You are a useful assistant who translates post into specified language"
 
     def set_language(self, language):
         self.language = language
 
     def send_request(self, message):
-        self.messages.append({"role": "user", "content": message})
+        self.messages.append(
+            {
+                "role": "user",
+                "content": f"Language: {self.language}\nMessage: {message}",
+            }
+        )
         response = self.client.chat.completions.create(
             model=self.model,
             messages=self.messages,
