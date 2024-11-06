@@ -1,6 +1,8 @@
-import re
+import copy
+import json
 
 from Core.base import ChatGPT
+from Utils.types import Configs
 
 
 class PostSuggestAssistant(ChatGPT):
@@ -11,7 +13,7 @@ class PostSuggestAssistant(ChatGPT):
 
         self.messages[0]["content"] = (
             "You are a helpful assistant that suggests 3 examples of posts per request for social media-oriented posts "
-            "based on user-provided characteristics, posts must be enclosed in double quotes. You must follow the "
+            "based on user-provided characteristics, posts must be returned in json format. You must follow the "
             "required number of characters (Size), language and number of emojis allowed"
         )
 
@@ -22,8 +24,33 @@ class PostSuggestAssistant(ChatGPT):
             self.send_request(product_characteristics)
         return self.suggestions
 
-    def send_request(self, product_characteristics):
-        post_suggestions = super().send_request(product_characteristics)
-        post_suggestions = re.findall('"(.+)"', post_suggestions)
+    def send_request(self, message):
+        user_request = copy.deepcopy(self.basic_configs)
+        user_request["Characteristics"] = message
+        self.messages.append(
+            {
+                "role": "user",
+                "content": "Rules: \n\n"
+                + "\n".join(
+                    [
+                        ": ".join((getattr(Configs, k.upper(), k), str(v)))
+                        for k, v in user_request.items()
+                    ]
+                ),
+            }
+        )
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=self.messages,
+            temperature=0,
+            response_format={"type": "json_object"},
+        )
+        response = json.loads(response.model_dump_json())["choices"][0]["message"][
+            "content"
+        ]
+        self.messages.append({"role": "assistant", "content": response})
+
+        response = json.loads(response)
+        post_suggestions = [list(post.values())[0] for post in response["posts"]]
         self.suggestions.extend(post_suggestions)
         return post_suggestions

@@ -1,22 +1,14 @@
 from functools import partial
 from pathlib import Path
 
-from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt
+from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt6.QtGui import QIntValidator
-from PyQt6.QtWidgets import (
-    QComboBox,
-    QHBoxLayout,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QScrollArea,
-    QSizePolicy,
-    QTextEdit,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
+                             QPushButton, QScrollArea, QSizePolicy, QTextEdit,
+                             QVBoxLayout, QWidget)
 
-from Core.adjustment import AdjustmentPostAssitant, AdjustmentPostAssitantWithoutHistory
+from Core.adjustment import (AdjustmentPostAssitant,
+                             AdjustmentPostAssitantWithoutHistory)
 from Core.base import ErrorHandling
 from Core.post import PostSuggestAssistant
 from Core.translator import TranslatorAssistant
@@ -71,7 +63,7 @@ class GeneratePostUI(QWidget, ErrorHandling):
         column_options_2 = QVBoxLayout()
         column_options_2.addWidget(QLabel("Size"))
         self.size = QLineEdit()
-        self.size.setText("100")
+        self.size.setText("500")
         self.size.setValidator(QIntValidator(100, 5000))
         column_options_2.addWidget(self.size)
         column_options_2.addWidget(QLabel("Language"))
