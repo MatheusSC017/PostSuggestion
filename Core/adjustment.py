@@ -16,14 +16,39 @@ class AdjustmentPostAssitant(ChatGPT):
         self.messages[0]["content"] = (
             f"You are a helpful assistant that improve posts for social media based in "
             f"adjustments requested by the user. \n Post: {post} \n The response must "
-            f"contain only the post suggested"
+            f"contain only the post suggested in json format"
         )
 
     def send_request(self, message, **kwargs):
         for key, value in kwargs.items():
             self.basic_configs[key] = value
 
-        new_post = super().send_request(message)
+        user_request = copy.deepcopy(self.basic_configs)
+        user_request["Characteristics"] = message
+        self.messages.append(
+            {
+                "role": "user",
+                "content": "Rules: \n\n"
+                + "\n".join(
+                    [
+                        ": ".join((getattr(Configs, k.upper(), k), str(v)))
+                        for k, v in user_request.items()
+                    ]
+                ),
+            }
+        )
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=self.messages,
+            temperature=0,
+            response_format={"type": "json_object"},
+        )
+        response = json.loads(response.model_dump_json())["choices"][0]["message"][
+            "content"
+        ]
+
+        self.messages.append({"role": "assistant", "content": response})
+        new_post = json.loads(response)["post"]
 
         self.undo_history = []
         self.adjusted_post.append(new_post)

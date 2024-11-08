@@ -124,8 +124,8 @@ class GeneratePostUI(QWidget, ErrorHandling):
                 self.error_handling(VALIDATIONS[field][1])
                 return
 
-        new_suggestions = self.post_suggest_assistant.get_suggestions(
-            product_characteristics=post_content,
+        new_suggestions = self.post_suggest_assistant.send_request(
+            message=post_content,
             Emojis=getattr(Emojis, emojis.upper()),
             Type=post_type,
             Language=language,

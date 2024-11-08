@@ -17,14 +17,10 @@ class PostSuggestAssistant(ChatGPT):
             "required number of characters (Size), language and number of emojis allowed"
         )
 
-    def get_suggestions(self, product_characteristics="", **kwargs):
+    def send_request(self, message, **kwargs):
         for key, value in kwargs.items():
             self.basic_configs[key] = value
-        if product_characteristics:
-            self.send_request(product_characteristics)
-        return self.suggestions
 
-    def send_request(self, message):
         user_request = copy.deepcopy(self.basic_configs)
         user_request["Characteristics"] = message
         self.messages.append(
@@ -53,4 +49,4 @@ class PostSuggestAssistant(ChatGPT):
         response = json.loads(response)
         post_suggestions = [list(post.values())[0] for post in response["posts"]]
         self.suggestions.extend(post_suggestions)
-        return post_suggestions
+        return self.suggestions
