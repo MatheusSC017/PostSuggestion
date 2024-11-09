@@ -44,31 +44,7 @@ class ChatGPT(ABC):
 
     @abstractmethod
     def send_request(self, message):
-        user_request = copy.deepcopy(self.basic_configs)
-        user_request["Characteristics"] = message
-        self.messages.append(
-            {
-                "role": "user",
-                "content": "Rules: \n\n"
-                + "\n".join(
-                    [
-                        ": ".join((getattr(Configs, k.upper(), k), str(v)))
-                        for k, v in user_request.items()
-                    ]
-                ),
-            }
-        )
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=self.messages,
-            temperature=0,
-        )
-        response = json.loads(response.model_dump_json())["choices"][0]["message"][
-            "content"
-        ]
-
-        self.messages.append({"role": "assistant", "content": response})
-        return response
+        pass
 
 
 @singleton
