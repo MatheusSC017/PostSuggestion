@@ -139,7 +139,7 @@ class GeneratePostUI(QWidget, ErrorHandling):
         self.generate_posts_button.setDisabled(False)
 
     def set_suggested_posts_labels(self):
-        self.clear_layout(self.generated_posts)
+        clear_layout(self.generated_posts)
         for suggestion in self.suggestions:
             post = QLabel(suggestion)
             post.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
@@ -148,16 +148,6 @@ class GeneratePostUI(QWidget, ErrorHandling):
             post_container = QHBoxLayout()
             post_container.addWidget(post)
             self.generated_posts.addLayout(post_container)
-
-    def clear_layout(self, main_layout):
-        for i in reversed(range(main_layout.count())):
-            item = main_layout.itemAt(i)
-            widget = item.widget()
-            if widget is not None:
-                widget.setParent(None)
-                main_layout.removeWidget(widget)
-            else:
-                self.clear_layout(item.layout())
 
 
 class ImprovePostUI(QWidget, ErrorHandling):
@@ -318,6 +308,7 @@ class ImprovePostUI(QWidget, ErrorHandling):
         self.stored_posts.show()
 
     def set_selected_post(self, post):
+        clear_layout(self.improved_posts)
         self.selected_post_index = self.suggestions.index(post)
         self.post_content.setText(post)
 
@@ -460,3 +451,14 @@ class StoredPosts(QWidget):
     def select_post(self, post):
         self.selectPost.emit(post)
         self.close()
+
+
+def clear_layout(main_layout):
+    for i in reversed(range(main_layout.count())):
+        item = main_layout.itemAt(i)
+        widget = item.widget()
+        if widget is not None:
+            widget.setParent(None)
+            main_layout.removeWidget(widget)
+        else:
+            clear_layout(item.layout())
