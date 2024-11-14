@@ -50,54 +50,54 @@ class GeneratePostUI(QWidget, ErrorHandling):
 
         input_layout = QVBoxLayout()
 
-        column_options_1 = QVBoxLayout()
-        column_options_1.addWidget(QLabel("Emojis"))
-        self.emojis = QComboBox()
-        self.emojis.addItems(["No", "Low", "Medium", "High"])
-        column_options_1.addWidget(self.emojis)
-        column_options_1.addWidget(QLabel("Type"))
-        self.type = QComboBox()
-        self.type.addItems(["Product", "Service", "Event", "Others"])
-        column_options_1.addWidget(self.type)
+        column_options_1_layout = QVBoxLayout()
+        column_options_1_layout.addWidget(QLabel("Emojis"))
+        self.emojis_cb = QComboBox()
+        self.emojis_cb.addItems(["No", "Low", "Medium", "High"])
+        column_options_1_layout.addWidget(self.emojis_cb)
+        column_options_1_layout.addWidget(QLabel("Type"))
+        self.type_cb = QComboBox()
+        self.type_cb.addItems(["Product", "Service", "Event", "Others"])
+        column_options_1_layout.addWidget(self.type_cb)
 
-        column_options_2 = QVBoxLayout()
-        column_options_2.addWidget(QLabel("Size"))
-        self.size = QLineEdit()
-        self.size.setText("500")
-        self.size.setValidator(QIntValidator(100, 5000))
-        column_options_2.addWidget(self.size)
-        column_options_2.addWidget(QLabel("Language"))
-        self.language = QComboBox()
-        self.language.addItems(["English", "Potuguese", "Spanish"])
-        column_options_2.addWidget(self.language)
+        column_options_2_layout = QVBoxLayout()
+        column_options_2_layout.addWidget(QLabel("Size"))
+        self.size_edit = QLineEdit()
+        self.size_edit.setText("500")
+        self.size_edit.setValidator(QIntValidator(100, 5000))
+        column_options_2_layout.addWidget(self.size_edit)
+        column_options_2_layout.addWidget(QLabel("Language"))
+        self.language_cb = QComboBox()
+        self.language_cb.addItems(["English", "Potuguese", "Spanish"])
+        column_options_2_layout.addWidget(self.language_cb)
 
-        options = QHBoxLayout()
-        options.addLayout(column_options_1)
-        options.addLayout(column_options_2)
-        input_layout.addLayout(options)
+        options_layout = QHBoxLayout()
+        options_layout.addLayout(column_options_1_layout)
+        options_layout.addLayout(column_options_2_layout)
+        input_layout.addLayout(options_layout)
 
         input_layout.addWidget(QLabel("Type your request:"))
-        self.post_content = QTextEdit()
-        self.post_content.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
-        input_layout.addWidget(self.post_content)
+        self.post_content_edit = QTextEdit()
+        self.post_content_edit.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+        input_layout.addWidget(self.post_content_edit)
 
         self.generate_posts_button = QPushButton("Generate Posts")
         self.generate_posts_button.clicked.connect(self.generate_posts)
-        form_options = QHBoxLayout()
-        form_options.addStretch()
-        form_options.addWidget(self.generate_posts_button)
-        input_layout.addLayout(form_options)
+        form_options_layout = QHBoxLayout()
+        form_options_layout.addStretch()
+        form_options_layout.addWidget(self.generate_posts_button)
+        input_layout.addLayout(form_options_layout)
 
         output_layout = QVBoxLayout()
 
         output_layout.addWidget(QLabel("Suggeestions"))
-        self.generated_posts = QVBoxLayout()
+        self.generated_posts_layout = QVBoxLayout()
         container = QWidget()
-        container.setLayout(self.generated_posts)
-        scroll_posts = QScrollArea()
-        scroll_posts.setWidget(container)
-        scroll_posts.setWidgetResizable(True)
-        output_layout.addWidget(scroll_posts)
+        container.setLayout(self.generated_posts_layout)
+        posts_scroll = QScrollArea()
+        posts_scroll.setWidget(container)
+        posts_scroll.setWidgetResizable(True)
+        output_layout.addWidget(posts_scroll)
 
         self.set_suggested_posts_labels()
 
@@ -110,11 +110,11 @@ class GeneratePostUI(QWidget, ErrorHandling):
 
     def generate_posts(self):
         self.generate_posts_button.setDisabled(True)
-        emojis = str(self.emojis.currentText())
-        post_type = str(self.type.currentText())
-        language = str(self.language.currentText())
-        size = int(self.size.text())
-        post_content = self.post_content.toPlainText()
+        emojis = str(self.emojis_cb.currentText())
+        post_type = str(self.type_cb.currentText())
+        language = str(self.language_cb.currentText())
+        size = int(self.size_edit.text())
+        post_content = self.post_content_edit.toPlainText()
 
         for field, value in zip(
             ["Emojis", "Type", "Language", "Size", "Content"],
@@ -139,7 +139,7 @@ class GeneratePostUI(QWidget, ErrorHandling):
         self.generate_posts_button.setDisabled(False)
 
     def set_suggested_posts_labels(self):
-        clear_layout(self.generated_posts)
+        clear_layout(self.generated_posts_layout)
         for suggestion in self.suggestions:
             post = QLabel(suggestion)
             post.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
@@ -147,7 +147,7 @@ class GeneratePostUI(QWidget, ErrorHandling):
             post.setContentsMargins(5, 10, 5, 20)
             post_container = QHBoxLayout()
             post_container.addWidget(post)
-            self.generated_posts.addLayout(post_container)
+            self.generated_posts_layout.addLayout(post_container)
 
 
 class ImprovePostUI(QWidget, ErrorHandling):
@@ -163,30 +163,30 @@ class ImprovePostUI(QWidget, ErrorHandling):
 
         input_layout = QVBoxLayout()
 
-        column_options_1 = QVBoxLayout()
-        column_options_1.addWidget(QLabel("Emojis"))
-        self.emojis = QComboBox()
-        self.emojis.addItems(["No", "Low", "Medium", "High"])
-        column_options_1.addWidget(self.emojis)
-        column_options_1.addWidget(QLabel("Type"))
-        self.type = QComboBox()
-        self.type.addItems(["Product", "Service", "Event", "Others"])
-        column_options_1.addWidget(self.type)
+        column_options_1_layout = QVBoxLayout()
+        column_options_1_layout.addWidget(QLabel("Emojis"))
+        self.emojis_cb = QComboBox()
+        self.emojis_cb.addItems(["No", "Low", "Medium", "High"])
+        column_options_1_layout.addWidget(self.emojis_cb)
+        column_options_1_layout.addWidget(QLabel("Type"))
+        self.type_cb = QComboBox()
+        self.type_cb.addItems(["Product", "Service", "Event", "Others"])
+        column_options_1_layout.addWidget(self.type_cb)
 
-        column_options_2 = QVBoxLayout()
-        column_options_2.addWidget(QLabel("Size"))
-        self.size = QLineEdit()
-        self.size.setText("100")
-        self.size.setValidator(QIntValidator(100, 5000))
-        column_options_2.addWidget(self.size)
-        column_options_2.addWidget(QLabel("Language"))
-        self.language = QComboBox()
-        self.language.addItems(["English", "Potuguese", "Spanish"])
-        column_options_2.addWidget(self.language)
+        column_options_2_layout = QVBoxLayout()
+        column_options_2_layout.addWidget(QLabel("Size"))
+        self.size_edit = QLineEdit()
+        self.size_edit.setText("100")
+        self.size_edit.setValidator(QIntValidator(100, 5000))
+        column_options_2_layout.addWidget(self.size_edit)
+        column_options_2_layout.addWidget(QLabel("Language"))
+        self.language_cb = QComboBox()
+        self.language_cb.addItems(["English", "Potuguese", "Spanish"])
+        column_options_2_layout.addWidget(self.language_cb)
 
         options = QHBoxLayout()
-        options.addLayout(column_options_1)
-        options.addLayout(column_options_2)
+        options.addLayout(column_options_1_layout)
+        options.addLayout(column_options_2_layout)
         input_layout.addLayout(options)
 
         original_post_layout = QHBoxLayout()
@@ -196,32 +196,32 @@ class ImprovePostUI(QWidget, ErrorHandling):
         select_post_button.clicked.connect(self.open_stored_posts)
         original_post_layout.addWidget(select_post_button)
         input_layout.addLayout(original_post_layout)
-        self.post_content = QTextEdit()
-        self.post_content.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
-        input_layout.addWidget(self.post_content)
+        self.post_content_edit = QTextEdit()
+        self.post_content_edit.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+        input_layout.addWidget(self.post_content_edit)
 
         input_layout.addWidget(QLabel("Type the improvements:"))
-        self.post_improvements = QTextEdit()
-        self.post_improvements.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
-        input_layout.addWidget(self.post_improvements)
+        self.post_improvements_edit = QTextEdit()
+        self.post_improvements_edit.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+        input_layout.addWidget(self.post_improvements_edit)
 
         self.improve_post_button = QPushButton("Improve Post")
         self.improve_post_button.clicked.connect(self.improve_post)
-        form_options = QHBoxLayout()
-        form_options.addStretch()
-        form_options.addWidget(self.improve_post_button)
-        input_layout.addLayout(form_options)
+        form_options_layout = QHBoxLayout()
+        form_options_layout.addStretch()
+        form_options_layout.addWidget(self.improve_post_button)
+        input_layout.addLayout(form_options_layout)
 
         output_layout = QVBoxLayout()
 
         output_layout.addWidget(QLabel("History"))
-        self.improved_posts = QVBoxLayout()
+        self.improved_posts_layout = QVBoxLayout()
         container = QWidget()
-        container.setLayout(self.improved_posts)
-        scroll_posts = QScrollArea()
-        scroll_posts.setWidget(container)
-        scroll_posts.setWidgetResizable(True)
-        output_layout.addWidget(scroll_posts)
+        container.setLayout(self.improved_posts_layout)
+        posts_scroll = QScrollArea()
+        posts_scroll.setWidget(container)
+        posts_scroll.setWidgetResizable(True)
+        output_layout.addWidget(posts_scroll)
 
         main_layout.addLayout(input_layout)
         main_layout.addLayout(output_layout)
@@ -232,13 +232,13 @@ class ImprovePostUI(QWidget, ErrorHandling):
 
     def improve_post(self):
         self.improve_post_button.setDisabled(True)
-        emojis = str(self.emojis.currentText())
-        post_type = str(self.type.currentText())
-        language = str(self.language.currentText())
-        size = int(self.size.text())
+        emojis = str(self.emojis_cb.currentText())
+        post_type = str(self.type_cb.currentText())
+        language = str(self.language_cb.currentText())
+        size = int(self.size_edit.text())
 
-        post_content = self.post_content.toPlainText()
-        post_improvements = self.post_improvements.toPlainText()
+        post_content = self.post_content_edit.toPlainText()
+        post_improvements = self.post_improvements_edit.toPlainText()
 
         for field, value in zip(
             ["Emojis", "Type", "Language", "Size", "Content", "Content"],
@@ -273,7 +273,7 @@ class ImprovePostUI(QWidget, ErrorHandling):
         post.setContentsMargins(5, 10, 5, 20)
         post_container = QHBoxLayout()
         post_container.addWidget(post)
-        self.improved_posts.addLayout(post_container)
+        self.improved_posts_layout.addLayout(post_container)
 
         self.improve_post_button.setDisabled(False)
 
@@ -308,9 +308,9 @@ class ImprovePostUI(QWidget, ErrorHandling):
         self.stored_posts.show()
 
     def set_selected_post(self, post):
-        clear_layout(self.improved_posts)
+        clear_layout(self.improved_posts_layout)
         self.selected_post_index = self.suggestions.index(post)
-        self.post_content.setText(post)
+        self.post_content_edit.setText(post)
 
 
 class TranslatePostUI(QWidget, ErrorHandling):
@@ -331,41 +331,41 @@ class TranslatePostUI(QWidget, ErrorHandling):
         select_post_button.clicked.connect(self.open_stored_posts)
         original_post_layout.addWidget(select_post_button)
         input_layout.addLayout(original_post_layout)
-        self.post_content = QTextEdit()
-        self.post_content.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
-        input_layout.addWidget(self.post_content)
+        self.post_content_edit = QTextEdit()
+        self.post_content_edit.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+        input_layout.addWidget(self.post_content_edit)
 
         self.translate_post_button = QPushButton("Translate Post")
         self.translate_post_button.clicked.connect(self.translate_post)
-        form_options = QHBoxLayout()
-        form_options.addStretch()
-        form_options.addWidget(self.translate_post_button)
-        input_layout.addLayout(form_options)
+        form_options_layout = QHBoxLayout()
+        form_options_layout.addStretch()
+        form_options_layout.addWidget(self.translate_post_button)
+        input_layout.addLayout(form_options_layout)
 
         output_layout = QVBoxLayout()
 
         title_label = QLabel("Translated post:")
         title_label.setContentsMargins(0, 4, 0, 4)
         output_layout.addWidget(title_label)
-        self.post_translated = QLabel()
-        self.post_translated.setSizePolicy(
+        self.post_translated_label = QLabel()
+        self.post_translated_label.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
-        self.post_translated.setStyleSheet("border: 1px solid #CACACA;")
-        self.post_translated.setTextInteractionFlags(
+        self.post_translated_label.setStyleSheet("border: 1px solid #CACACA;")
+        self.post_translated_label.setTextInteractionFlags(
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
-        self.post_translated.setWordWrap(True)
-        self.post_translated.setContentsMargins(5, 10, 5, 20)
-        output_layout.addWidget(self.post_translated)
+        self.post_translated_label.setWordWrap(True)
+        self.post_translated_label.setContentsMargins(5, 10, 5, 20)
+        output_layout.addWidget(self.post_translated_label)
 
-        language_form = QHBoxLayout()
-        language_form.addStretch()
-        self.language = QComboBox()
-        self.language.setMinimumWidth(200)
-        self.language.addItems(["English", "Potuguese", "Spanish"])
-        language_form.addWidget(self.language)
-        output_layout.addLayout(language_form)
+        language_form_layout = QHBoxLayout()
+        language_form_layout.addStretch()
+        self.language_cb = QComboBox()
+        self.language_cb.setMinimumWidth(200)
+        self.language_cb.addItems(["English", "Potuguese", "Spanish"])
+        language_form_layout.addWidget(self.language_cb)
+        output_layout.addLayout(language_form_layout)
 
         main_layout.addLayout(input_layout)
         main_layout.addLayout(output_layout)
@@ -377,8 +377,8 @@ class TranslatePostUI(QWidget, ErrorHandling):
     def translate_post(self):
         self.translate_post_button.setDisabled(True)
 
-        post_content = self.post_content.toPlainText()
-        language = str(self.language.currentText())
+        post_content = self.post_content_edit.toPlainText()
+        language = str(self.language_cb.currentText())
 
         for field, value in zip(["Language", "Content"], [language, post_content]):
             if field in VALIDATIONS and VALIDATIONS[field][0](value):
@@ -387,13 +387,13 @@ class TranslatePostUI(QWidget, ErrorHandling):
 
         self.translate_assistant.set_language(language)
         translation = self.translate_message(post_content)
-        self.post_translated.setText(translation)
+        self.post_translated_label.setText(translation)
 
         self.translate_post_button.setDisabled(False)
 
     @pyqtSlot(str)
     def selected_post(self, post):
-        self.post_content.setText(post)
+        self.post_content_edit.setText(post)
 
     def open_stored_posts(self):
         self.stored_posts = StoredPosts(self.suggestions)
