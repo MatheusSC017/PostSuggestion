@@ -1,5 +1,3 @@
-import copy
-import json
 import os
 import pathlib
 from abc import ABC, abstractmethod
@@ -9,7 +7,6 @@ from openai import OpenAI
 from PyQt6.QtWidgets import QMessageBox
 
 from Utils.patterns import singleton
-from Utils.types import Configs
 
 BASEDIR = pathlib.Path().resolve()
 dotenv.load_dotenv(BASEDIR / ".env")

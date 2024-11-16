@@ -19,8 +19,25 @@ class Chat(ChatGPT):
             model=self.model, messages=self.messages, temperature=0
         )
 
-        response = json.load(response.model_dump_json())["choices"][0]["message"][
+        response = json.loads(response.model_dump_json())["choices"][0]["message"][
             "content"
         ]
         self.messages.append({"role": "assistant", "content": response})
         return response
+
+
+if __name__ == "__main__":
+    import dotenv
+
+    dotenv.load_dotenv()
+
+    chat = Chat()
+
+    print("Initializing Chat")
+    while True:
+        message = input()
+        if message == "exit":
+            break
+
+        response = chat.send_request(message)
+        print(f"\nAssistant: {response}\n")
