@@ -7,37 +7,15 @@ from PyQt6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
                              QPushButton, QScrollArea, QSizePolicy, QTextEdit,
                              QVBoxLayout, QWidget)
 
-from Core.adjustment import (AdjustmentPostAssitant,
+from core.adjustment import (AdjustmentPostAssitant,
                              AdjustmentPostAssitantWithoutHistory)
-from Core.base import ErrorHandling
-from Core.post import PostSuggestAssistant
-from Core.translator import TranslatorAssistant
-from Utils.types import Emojis
+from core.base import ErrorHandling
+from core.post import PostSuggestAssistant
+from core.translator import TranslatorAssistant
+from utils.types import Emojis
+from utils.validations import POST_VALIDATIONS
 
 BASE_PATH = Path(__file__).resolve().parent.parent
-
-VALIDATIONS = {
-    "Emojis": (
-        lambda emojis: emojis not in ["No", "Low", "Medium", "High"],
-        'The value for Emojis must be between ["No", "Low", "Medium", "High"]',
-    ),
-    "Type": (
-        lambda post_type: post_type not in ["Product", "Service", "Event", "Others"],
-        'The value for Emojis must be between ["Product", "Service", "Event", "Others"]',
-    ),
-    "Language": (
-        lambda language: language not in ["English", "Potuguese", "Spanish"],
-        'The value for Emojis must be between ["English", "Potuguese", "Spanish"]',
-    ),
-    "Size": (
-        lambda size: 100 > size > 5000,
-        "The generated post size must be between 100 and 5000",
-    ),
-    "Content": (
-        lambda post_content: len(post_content) <= 30,
-        "Post content/improvements must be 30 characters or more",
-    ),
-}
 
 
 class GeneratePostUI(QWidget, ErrorHandling):
@@ -120,8 +98,8 @@ class GeneratePostUI(QWidget, ErrorHandling):
             ["Emojis", "Type", "Language", "Size", "Content"],
             [emojis, post_type, language, size, post_content],
         ):
-            if field in VALIDATIONS and VALIDATIONS[field][0](value):
-                self.error_handling(VALIDATIONS[field][1])
+            if field in POST_VALIDATIONS and POST_VALIDATIONS[field][0](value):
+                self.error_handling(POST_VALIDATIONS[field][1])
                 return
 
         new_suggestions = self.post_suggest_assistant.send_request(
@@ -244,12 +222,12 @@ class ImprovePostUI(QWidget, ErrorHandling):
             ["Emojis", "Type", "Language", "Size", "Content", "Content"],
             [emojis, post_type, language, size, post_content, post_improvements],
         ):
-            if field in VALIDATIONS and VALIDATIONS[field][0](value):
-                self.error_handling(VALIDATIONS[field][1])
+            if field in POST_VALIDATIONS and POST_VALIDATIONS[field][0](value):
+                self.error_handling(POST_VALIDATIONS[field][1])
                 return
 
         if self.selected_post_index is None:
-            suggestion = self.general_adjust_assistant.adjust_post(
+            suggestion = self.general_adjust_assistant.send_request(
                 post_content,
                 post_improvements,
                 Emojis=getattr(Emojis, emojis.upper()),
@@ -300,7 +278,7 @@ class ImprovePostUI(QWidget, ErrorHandling):
             post_suggestion = self.adjustment_posts[post].messages[-1]["content"]
             del self.adjustment_posts[post]
             return post_suggestion
-        raise Exception("Post not found")
+        raise KeyError("Post not found")
 
     def open_stored_posts(self):
         self.stored_posts = StoredPosts(self.suggestions)
@@ -381,8 +359,8 @@ class TranslatePostUI(QWidget, ErrorHandling):
         language = str(self.language_cb.currentText())
 
         for field, value in zip(["Language", "Content"], [language, post_content]):
-            if field in VALIDATIONS and VALIDATIONS[field][0](value):
-                self.error_handling(VALIDATIONS[field][1])
+            if field in POST_VALIDATIONS and POST_VALIDATIONS[field][0](value):
+                self.error_handling(POST_VALIDATIONS[field][1])
                 return
 
         self.translate_assistant.set_language(language)

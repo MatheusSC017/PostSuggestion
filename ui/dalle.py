@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (QComboBox, QFileDialog, QHBoxLayout, QLabel,
                              QLineEdit, QMessageBox, QPushButton, QScrollArea,
                              QSizePolicy, QVBoxLayout, QWidget)
 
-from Core.images import Dalle
+from core.images import Dalle
 
 
 class GenerateImageUI(QWidget):

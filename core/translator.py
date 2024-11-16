@@ -1,6 +1,6 @@
 import json
 
-from Core.base import ChatGPT
+from core.base import ChatGPT
 
 
 class TranslatorAssistant(ChatGPT):

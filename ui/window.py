@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QInputDialog, QMainWindow, QMenu, QMenuBar
 
-from UI.dalle import EditImageUI, GenerateImageUI, ImageVariationUI
-from UI.post import GeneratePostUI, ImprovePostUI, TranslatePostUI
+from ui.dalle import EditImageUI, GenerateImageUI, ImageVariationUI
+from ui.post import GeneratePostUI, ImprovePostUI, TranslatePostUI
 
 BASE_PATH = Path(__file__).resolve().parent.parent
 
@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         file_name.setWindowTitle("Save History")
         file_name.setLabelText("Enter the file name")
         if file_name.exec():
-            with open(f"{BASE_PATH}/Files/{file_name.textValue()}.txt", "w") as file:
+            with open(f"{BASE_PATH}/files/{file_name.textValue()}.txt", "w") as file:
                 for post in self.suggestions:
                     file.write(f"{post}\n")
 
@@ -103,6 +103,6 @@ class MainWindow(QMainWindow):
         file_name.setWindowTitle("Load History")
         file_name.setLabelText("Enter the file name")
         if file_name.exec():
-            with open(f"{BASE_PATH}/Files/{file_name.textValue()}.txt", "r") as file:
+            with open(f"{BASE_PATH}/files/{file_name.textValue()}.txt", "r") as file:
                 for post in file:
                     self.suggestions.append(post)

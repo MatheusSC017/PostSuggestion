@@ -1,8 +1,8 @@
 import copy
 import json
 
-from Core.base import ChatGPT
-from Utils.types import Configs
+from core.base import ChatGPT
+from utils.types import Configs
 
 
 class AdjustmentPostAssitant(ChatGPT):
@@ -71,19 +71,16 @@ class AdjustmentPostAssitantWithoutHistory(ChatGPT):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.messages[0]["content"] = (
-            f"You are a helpful assistant that improve posts for social media based in "
-            f"adjustments requested by the user. The response must contain only the post "
-            f"suggested"
+            "You are a helpful assistant that improve posts for social media based in "
+            "adjustments requested by the user. The response must contain only the post "
+            "suggested"
         )
 
-    def send_request(self, message):
-        pass
-
-    def adjust_post(self, post, adjustments, **kwargs):
+    def send_request(self, message, adjustments, **kwargs):
         for key, value in kwargs.items():
             self.basic_configs[key] = value
         user_request = copy.deepcopy(self.basic_configs)
-        user_request["Original post"] = post
+        user_request["Original post"] = message
         user_request["Adjustments"] = adjustments
         self.messages.append(
             {

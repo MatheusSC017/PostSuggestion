@@ -1,8 +1,8 @@
 import copy
 import json
 
-from Core.base import ChatGPT
-from Utils.types import Configs
+from core.base import ChatGPT
+from utils.types import Configs
 
 
 class PostSuggestAssistant(ChatGPT):

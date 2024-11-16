@@ -6,7 +6,7 @@ import dotenv
 from openai import OpenAI
 from PyQt6.QtWidgets import QMessageBox
 
-from Utils.patterns import singleton
+from utils.patterns import singleton
 
 BASEDIR = pathlib.Path().resolve()
 dotenv.load_dotenv(BASEDIR / ".env")
