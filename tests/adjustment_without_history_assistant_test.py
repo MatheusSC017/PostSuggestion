@@ -1,26 +1,14 @@
-import json
-
 import pytest
 
-from core.post import PostSuggestAssistant
+from core.adjustment import AdjustmentPostAssitantWithoutHistory
 from tests.fake_openai import fake_openai_client
 from utils.types import Configs
 
 
 @pytest.fixture
 def assistant(fake_openai_client):
-    client = fake_openai_client(
-        json.dumps(
-            {
-                "posts": [
-                    {"Post1": "Suggestion 1"},
-                    {"Post2": "Suggestion 2"},
-                    {"Post3": "Suggestion 3"},
-                ]
-            }
-        )
-    )
-    assistant = PostSuggestAssistant(test_client=client)
+    client = fake_openai_client("New adjustment")
+    assistant = AdjustmentPostAssitantWithoutHistory(test_client=client)
     return assistant
 
 
@@ -29,14 +17,17 @@ def test_initial_message(assistant):
 
 
 def test_send_request(assistant):
-    message = "Create posts about technology trends"
+    post = "Initial post that will be adjusted"
+    adjustment = "Adjust the post"
     configs = {
         "size": 500,
         "emojis": "Medium",
         "language": "English",
         "type": "Product",
     }
-    suggestions = assistant.send_request(message, **configs)
+    adjusted_post = assistant.send_request(
+        message=post, adjustments=adjustment, **configs
+    )
 
     assistant.client.chat.completions.create.assert_called_once()
     _, kwargs = assistant.client.chat.completions.create.call_args
@@ -52,6 +43,10 @@ def test_send_request(assistant):
             )
             in kwargs["messages"][-2]["content"]
         )
+    assert len(kwargs["messages"]) == 3
 
-    assert len(suggestions) == 3
-    assert suggestions == ["Suggestion 1", "Suggestion 2", "Suggestion 3"]
+    assert adjusted_post == "New adjustment"
+
+    _ = assistant.send_request(message=post, adjustments=adjustment, **configs)
+    _, kwargs = assistant.client.chat.completions.create.call_args
+    assert len(kwargs["messages"]) == 5
