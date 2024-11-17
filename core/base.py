@@ -19,7 +19,10 @@ class ChatGPT(ABC):
     messages = []
     basic_configs = {}
 
-    def __init__(self, model="gpt-3.5-turbo", basic_configs={}):
+    def __init__(self, model="gpt-3.5-turbo", basic_configs={}, test_client=None):
+        if test_client is not None:
+            self._client = test_client
+
         self.model = model
 
         for key, value in basic_configs.items():
