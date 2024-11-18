@@ -9,9 +9,9 @@ from PyQt6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
 
 from core.adjustment import (AdjustmentPostAssitant,
                              AdjustmentPostAssitantWithoutHistory)
-from core.base import ErrorHandling
 from core.post import PostSuggestAssistant
 from core.translator import TranslatorAssistant
+from ui.base import ErrorHandling
 from utils.types import Emojis
 from utils.validations import POST_VALIDATIONS
 

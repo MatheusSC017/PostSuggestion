@@ -24,20 +24,3 @@ class Chat(ChatGPT):
         ]
         self.messages.append({"role": "assistant", "content": response})
         return response
-
-
-if __name__ == "__main__":
-    import dotenv
-
-    dotenv.load_dotenv()
-
-    chat = Chat()
-
-    print("Initializing Chat")
-    while True:
-        message = input()
-        if message == "exit":
-            break
-
-        response = chat.send_request(message)
-        print(f"\nAssistant: {response}\n")

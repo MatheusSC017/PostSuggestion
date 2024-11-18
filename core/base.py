@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 
 import dotenv
 from openai import OpenAI
-from PyQt6.QtWidgets import QMessageBox
 
 from utils.patterns import singleton
 
@@ -50,11 +49,3 @@ class ChatGPT(ABC):
 @singleton
 class OpenAIUnique(OpenAI):
     pass
-
-
-class ErrorHandling:
-    def error_handling(self, message):
-        dlg = QMessageBox(self)
-        dlg.setWindowTitle("Error")
-        dlg.setText(message)
-        dlg.exec()

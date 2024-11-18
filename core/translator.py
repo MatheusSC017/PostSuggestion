@@ -10,7 +10,7 @@ class TranslatorAssistant(ChatGPT):
         self.language = language
         self.messages[0][
             "content"
-        ] = "You are a useful assistant who translates post into specified language"
+        ] = "You are a helpful assistant who translates post into specified language"
 
     def set_language(self, language):
         self.language = language
