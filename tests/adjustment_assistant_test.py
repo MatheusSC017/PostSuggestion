@@ -3,17 +3,17 @@ import json
 import pytest
 
 from core.adjustment import AdjustmentPostAssitant
-from tests.fake_openai import fake_openai_client
+from tests.fake_openai import fake_openai_chat_client
 from utils.types import Configs
 
 
 @pytest.fixture
-def assistant(fake_openai_client):
-    client = fake_openai_client(json.dumps({"post": "New adjustment"}))
-    assistant = AdjustmentPostAssitant(
+def assistant(fake_openai_chat_client):
+    client = fake_openai_chat_client(json.dumps({"post": "New adjustment"}))
+    assistant_instance = AdjustmentPostAssitant(
         post="Initial post that will be adjusted", test_client=client
     )
-    return assistant
+    return assistant_instance
 
 
 def test_initial_message(assistant):

@@ -1,15 +1,15 @@
 import pytest
 
 from core.adjustment import AdjustmentPostAssitantWithoutHistory
-from tests.fake_openai import fake_openai_client
+from tests.fake_openai import fake_openai_chat_client
 from utils.types import Configs
 
 
 @pytest.fixture
-def assistant(fake_openai_client):
-    client = fake_openai_client("New adjustment")
-    assistant = AdjustmentPostAssitantWithoutHistory(test_client=client)
-    return assistant
+def assistant(fake_openai_chat_client):
+    client = fake_openai_chat_client("New adjustment")
+    assistant_instance = AdjustmentPostAssitantWithoutHistory(test_client=client)
+    return assistant_instance
 
 
 def test_initial_message(assistant):

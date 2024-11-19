@@ -1,14 +1,14 @@
 import pytest
 
 from core.translator import TranslatorAssistant
-from tests.fake_openai import fake_openai_client
+from tests.fake_openai import fake_openai_chat_client
 
 
 @pytest.fixture
-def assistant(fake_openai_client):
-    client = fake_openai_client("Translated post")
-    assistant = TranslatorAssistant(test_client=client)
-    return assistant
+def assistant(fake_openai_chat_client):
+    client = fake_openai_chat_client("Translated post")
+    assistant_instance = TranslatorAssistant(test_client=client)
+    return assistant_instance
 
 
 def test_initial_message(assistant):

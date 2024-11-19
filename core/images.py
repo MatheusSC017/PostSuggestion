@@ -13,6 +13,10 @@ dotenv.load_dotenv()
 class Dalle:
     _client = None
 
+    def __init__(self, test_client=None):
+        if test_client is not None:
+            self._client = test_client
+
     @property
     def client(self):
         if self._client is None:
@@ -75,14 +79,3 @@ class Dalle:
         )
 
         return response.data[0].url, response.data[1].url
-
-
-if __name__ == "__main__":
-    instance = Dalle()
-
-    print(
-        instance.generate_image(
-            "Logo para empresa de Energia Solar com as inicias NMV (Novo Mundo Verde), Utilize somente a sigla como texto NMV",
-            size="256x256",
-        )
-    )

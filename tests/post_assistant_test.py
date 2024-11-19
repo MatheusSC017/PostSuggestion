@@ -3,13 +3,13 @@ import json
 import pytest
 
 from core.post import PostSuggestAssistant
-from tests.fake_openai import fake_openai_client
+from tests.fake_openai import fake_openai_chat_client
 from utils.types import Configs
 
 
 @pytest.fixture
-def assistant(fake_openai_client):
-    client = fake_openai_client(
+def assistant(fake_openai_chat_client):
+    client = fake_openai_chat_client(
         json.dumps(
             {
                 "posts": [
@@ -20,8 +20,8 @@ def assistant(fake_openai_client):
             }
         )
     )
-    assistant = PostSuggestAssistant(test_client=client)
-    return assistant
+    assistant_instance = PostSuggestAssistant(test_client=client)
+    return assistant_instance
 
 
 def test_initial_message(assistant):
