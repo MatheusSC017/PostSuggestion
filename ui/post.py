@@ -22,8 +22,11 @@ class GeneratePostUI(QWidget, ErrorHandling):
     suggestions = []
     post_suggest_assistant = PostSuggestAssistant()
 
-    def __init__(self, suggestions):
+    def __init__(self, suggestions, test_client=None):
         super().__init__()
+        if test_client is not None:
+            self.post_suggest_assistant = test_client
+
         main_layout = QHBoxLayout()
 
         input_layout = QVBoxLayout()

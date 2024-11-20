@@ -36,7 +36,9 @@ def test_send_request(assistant):
         "language": "English",
         "type": "Product",
     }
+    assert len(assistant.suggestions) == 0
     suggestions = assistant.send_request(message, **configs)
+    assert len(assistant.suggestions) == 3
 
     assistant.client.chat.completions.create.assert_called_once()
     _, kwargs = assistant.client.chat.completions.create.call_args
