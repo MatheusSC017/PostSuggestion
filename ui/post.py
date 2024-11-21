@@ -133,13 +133,18 @@ class GeneratePostUI(QWidget, ErrorHandling):
 
 class ImprovePostUI(QWidget, ErrorHandling):
     adjustment_posts = {}
+    adjustment_class = AdjustmentPostAssitant
     general_adjust_assistant = AdjustmentPostAssitantWithoutHistory()
     suggestions = []
     selected_post_index = None
     stored_posts = None
 
-    def __init__(self, suggestions):
+    def __init__(self, suggestions, test_client=None):
         super().__init__()
+        if test_client is not None:
+            self.general_adjust_assistant = test_client
+            self.adjustment_class = test_client
+
         main_layout = QHBoxLayout()
 
         input_layout = QVBoxLayout()
@@ -157,7 +162,7 @@ class ImprovePostUI(QWidget, ErrorHandling):
         column_options_2_layout = QVBoxLayout()
         column_options_2_layout.addWidget(QLabel("Size"))
         self.size_edit = QLineEdit()
-        self.size_edit.setText("100")
+        self.size_edit.setText("500")
         self.size_edit.setValidator(QIntValidator(100, 5000))
         column_options_2_layout.addWidget(self.size_edit)
         column_options_2_layout.addWidget(QLabel("Language"))
@@ -248,12 +253,12 @@ class ImprovePostUI(QWidget, ErrorHandling):
                 Size=size,
             )
 
-        post = QLabel(suggestion)
-        post.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        post.setWordWrap(True)
-        post.setContentsMargins(5, 10, 5, 20)
+        post_label = QLabel(suggestion)
+        post_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        post_label.setWordWrap(True)
+        post_label.setContentsMargins(5, 10, 5, 20)
         post_container = QHBoxLayout()
-        post_container.addWidget(post)
+        post_container.addWidget(post_label)
         self.improved_posts_layout.addLayout(post_container)
 
         self.improve_post_button.setDisabled(False)
@@ -271,7 +276,7 @@ class ImprovePostUI(QWidget, ErrorHandling):
         for key, value in kwargs.items():
             basic_configs[key] = value
 
-        self.adjustment_posts[post] = AdjustmentPostAssitant(
+        self.adjustment_posts[post] = self.adjustment_class(
             post=self.suggestions[post],
             basic_configs=basic_configs,
         )
