@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 from PyQt6.QtWidgets import QApplication
 
-from ui.post import GeneratePostUI, ImprovePostUI
+from ui.post import GeneratePostUI, ImprovePostUI, TranslatePostUI
 
 
 @pytest.fixture
@@ -39,6 +39,12 @@ def generate_post_ui(qt_app, fake_assistant):
 def improve_post_ui(qt_app, fake_assistant):
     assistant_instance = fake_assistant("Suggestion")
     return ImprovePostUI(suggestions=[], test_client=assistant_instance)
+
+
+@pytest.fixture
+def translate_post_ui(qt_app, fake_assistant):
+    assistant_instance = fake_assistant("Translation")
+    return TranslatePostUI(suggestions=[], test_client=assistant_instance)
 
 
 def test_initial_state_generate(generate_post_ui):
@@ -78,3 +84,13 @@ def test_post_improve(improve_post_ui):
         improve_post_ui.improved_posts_layout.itemAt(0).layout().itemAt(0).widget()
     )
     assert post_label.text() == "Suggestion"
+
+
+def test_post_translate(translate_post_ui):
+    assert translate_post_ui.language_cb.currentText() == "English"
+    translate_post_ui.post_content_edit.setText(
+        "Original Post Content the will be translated"
+    )
+    assert translate_post_ui.post_translated_label.text() == ""
+    translate_post_ui.translate_post_button.click()
+    assert translate_post_ui.post_translated_label.text() == "Translation"

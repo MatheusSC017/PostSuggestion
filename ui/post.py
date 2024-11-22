@@ -304,8 +304,11 @@ class TranslatePostUI(QWidget, ErrorHandling):
     suggestions = []
     stored_posts = None
 
-    def __init__(self, suggestions):
+    def __init__(self, suggestions, test_client=None):
         super().__init__()
+        if test_client is not None:
+            self.translate_assistant = test_client
+
         main_layout = QHBoxLayout()
 
         input_layout = QVBoxLayout()
