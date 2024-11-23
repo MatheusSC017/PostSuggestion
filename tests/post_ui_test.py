@@ -54,7 +54,7 @@ def test_initial_state_generate(generate_post_ui):
     assert generate_post_ui.language_cb.currentText() == "English"
 
 
-def test_post_generation(generate_post_ui):
+def test_post_generate(generate_post_ui):
     generate_post_ui.post_content_edit.setText("Original text to generate the post")
     assert len(generate_post_ui.suggestions) == 0
     generate_post_ui.generate_posts_button.click()

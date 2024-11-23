@@ -13,10 +13,13 @@ from core.images import Dalle
 
 
 class GenerateImageUI(QWidget):
-    dalle = Dalle()
-
-    def __init__(self):
+    def __init__(self, test_client=None):
         super().__init__()
+        if test_client is not None:
+            self.dalle = test_client
+        else:
+            self.dalle = Dalle()
+
         main_layout = QVBoxLayout()
 
         configs_layout = QHBoxLayout()
@@ -84,7 +87,11 @@ class GenerateImageUI(QWidget):
             quality = str(self.quality_combobox.currentText())
 
             image_url = self.dalle.generate_image(prompt, size, quality)
+            if not image_url:
+                raise ValueError("Image URL generation failed")
             self.image = load_image_from_url(image_url)
+            if self.image.isNull():
+                raise ValueError("Failed to load image from the URL")
             self.image_label.setPixmap(QPixmap.fromImage(self.image))
         except (ValueError, openai.OpenAIError) as e:
             error_message = QMessageBox()
@@ -103,10 +110,13 @@ class GenerateImageUI(QWidget):
 
 
 class EditImageUI(QWidget):
-    dalle = Dalle()
-
-    def __init__(self):
+    def __init__(self, test_client=None):
         super().__init__()
+        if test_client is not None:
+            self.dalle = test_client
+        else:
+            self.dalle = Dalle()
+
         main_layout = QVBoxLayout()
 
         options_layout = QHBoxLayout()
@@ -293,10 +303,13 @@ class EditImageUI(QWidget):
 
 
 class ImageVariationUI(QWidget):
-    dalle = Dalle()
-
-    def __init__(self):
+    def __init__(self, test_client=None):
         super().__init__()
+        if test_client is not None:
+            self.dalle = test_client
+        else:
+            self.dalle = Dalle()
+
         main_layout = QVBoxLayout()
 
         self.load_button = QPushButton("Load Image")
@@ -415,9 +428,15 @@ class ImageVariationUI(QWidget):
 
 def load_image_from_url(url):
     response = urllib.request.urlopen(url)
-    image_data = BytesIO(response.read())
+    if response.status != 200:
+        raise ValueError(f"Failed to fetch image. HTTP Status: {response.status}")
+
+    image_data = response.read()
     qimage = QImage()
-    qimage.loadFromData(image_data.read())
+
+    if not qimage.loadFromData(image_data):
+        raise ValueError("Invalid image data")
+
     return qimage
 
 
