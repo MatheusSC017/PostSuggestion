@@ -1,10 +1,8 @@
-import io
-
 import pytest
-from PIL import Image
 
 from core.images import Dalle
 from tests.fake_openai import fake_openai_dalle_client
+from utils.images import genenerate_image_bytes
 
 
 @pytest.fixture
@@ -36,14 +34,3 @@ def test_generate_variations(assistant):
     assert len(response) == 2
     assert response[0] == "Generated image"
     assert response[1] == "Generated image"
-
-
-def genenerate_image_bytes():
-    image = Image.new("RGB", (1024, 1024), color="white")
-
-    image_bytes = io.BytesIO()
-    image.save(image_bytes, format="PNG")
-    image_bytes.seek(0)
-
-    image_byte_data = image_bytes.getvalue()
-    return image_byte_data
