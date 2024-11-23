@@ -2,10 +2,10 @@ from unittest.mock import MagicMock
 
 import pytest
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QImage, QPixmap
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtGui import QImage
 
-from ui.dalle import GenerateImageUI, EditImageUI
+from ui.dalle import EditImageUI, GenerateImageUI, ImageVariationUI
 
 TEST_IMAGE_LINK = "https://images.unsplash.com/photo-1720048169707-a32d6dfca0b3?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
 
@@ -22,6 +22,7 @@ def fake_assistant():
     fake_client = MagicMock()
     fake_client.generate_image.return_value = TEST_IMAGE_LINK
     fake_client.update_image.return_value = TEST_IMAGE_LINK
+    fake_client.generate_variations.return_value = (TEST_IMAGE_LINK, TEST_IMAGE_LINK)
     return fake_client
 
 
@@ -33,6 +34,11 @@ def generate_image_ui(qt_app, fake_assistant):
 @pytest.fixture
 def edit_image_ui(qt_app, fake_assistant):
     return EditImageUI(test_client=fake_assistant)
+
+
+@pytest.fixture
+def image_variation_ui(qt_app, fake_assistant):
+    return ImageVariationUI(test_client=fake_assistant)
 
 
 def test_initial_state_generate(generate_image_ui):
@@ -65,3 +71,28 @@ def test_edit_image(edit_image_ui):
     assert edit_image_ui.image is None
     edit_image_ui.edit_image_button.click()
     assert edit_image_ui.image is not None
+
+
+def test_initial_state_variation(image_variation_ui):
+    assert image_variation_ui.prompt_image_edit.text() == ""
+    assert image_variation_ui.original_image is None
+    assert image_variation_ui.variation_1_image is None
+    assert image_variation_ui.variation_2_image is None
+    assert image_variation_ui.original_pixmap is None
+    assert image_variation_ui.variation_1_pixmap is None
+    assert image_variation_ui.variation_2_pixmap is None
+
+
+def test_generate_variations(image_variation_ui):
+    test_image = QImage(100, 100, QImage.Format.Format_RGBA64)
+    test_image.fill(Qt.GlobalColor.white)
+
+    image_variation_ui.original_image = test_image
+    image_variation_ui.original_pixmap = QPixmap.fromImage(test_image)
+    image_variation_ui.prompt_image_edit.setText("Generate variations")
+
+    image_variation_ui.generate_variation_button.click()
+    assert image_variation_ui.variation_1_image is not None
+    assert image_variation_ui.variation_2_image is not None
+    assert image_variation_ui.variation_1_pixmap is not None
+    assert image_variation_ui.variation_2_pixmap is not None
