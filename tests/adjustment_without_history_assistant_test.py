@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 import pytest
 
 from core.adjustment import AdjustmentPostAssitantWithoutHistory
@@ -12,7 +14,8 @@ def assistant(fake_openai_chat_client):
     return assistant_instance
 
 
-def test_initial_message(assistant):
+def test_initial_state(assistant):
+    assert isinstance(assistant.client, MagicMock)
     assert "You are a helpful assistant" in assistant.messages[0]["content"]
 
 
