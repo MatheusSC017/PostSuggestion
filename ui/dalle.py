@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (QComboBox, QFileDialog, QHBoxLayout, QLabel,
                              QSizePolicy, QVBoxLayout, QWidget)
 
 from core.images import Dalle
+from utils.validations import IMAGE_VALIDATIONS
 
 
 class GenerateImageUI(QWidget):
@@ -85,6 +86,13 @@ class GenerateImageUI(QWidget):
             prompt = self.prompt_image_edit.text()
             size = str(self.size_combobox.currentText())
             quality = str(self.quality_combobox.currentText())
+
+            for field, value in zip(
+                ["Prompt", "Size", "Quality"],
+                [prompt, size, quality],
+            ):
+                if field in IMAGE_VALIDATIONS and IMAGE_VALIDATIONS[field][0](value):
+                    raise ValueError(IMAGE_VALIDATIONS[field][1])
 
             image_url = self.dalle.generate_image(prompt, size, quality)
             if not image_url:
@@ -273,6 +281,15 @@ class EditImageUI(QWidget):
                 prompt = self.prompt_image_edit.text()
                 size = str(self.size_combobox.currentText())
 
+                for field, value in zip(
+                    ["Prompt", "Size"],
+                    [prompt, size],
+                ):
+                    if field in IMAGE_VALIDATIONS and IMAGE_VALIDATIONS[field][0](
+                        value
+                    ):
+                        raise ValueError(IMAGE_VALIDATIONS[field][1])
+
                 original_image_b = qimage_to_bytes(self.original_image)
                 mask_image_b = qimage_to_bytes(self.mask)
 
@@ -315,16 +332,6 @@ class ImageVariationUI(QWidget):
         self.load_button = QPushButton("Load Image")
         self.load_button.clicked.connect(self.load_image)
         main_layout.addWidget(self.load_button)
-
-        prompt_label = QLabel("Prompt to variations")
-        prompt_label.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
-        )
-        prompt_label.adjustSize()
-        main_layout.addWidget(prompt_label)
-
-        self.prompt_image_edit = QLineEdit()
-        main_layout.addWidget(self.prompt_image_edit)
 
         self.generate_variation_button = QPushButton("Generate Variations")
         self.generate_variation_button.clicked.connect(self.get_variations)
@@ -373,13 +380,10 @@ class ImageVariationUI(QWidget):
     def get_variations(self):
         try:
             if self.original_image:
-                prompt = self.prompt_image_edit.text()
 
                 original_image_b = qimage_to_bytes(self.original_image)
 
-                link_new_images = self.dalle.generate_variations(
-                    prompt, original_image_b
-                )
+                link_new_images = self.dalle.generate_variations(original_image_b)
                 self.variation_1_image = load_image_from_url(link_new_images[0])
                 self.variation_2_image = load_image_from_url(link_new_images[1])
                 self.variation_1_pixmap = QPixmap.fromImage(self.variation_1_image)

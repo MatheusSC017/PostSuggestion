@@ -74,7 +74,6 @@ def test_edit_image(edit_image_ui):
 
 
 def test_initial_state_variation(image_variation_ui):
-    assert image_variation_ui.prompt_image_edit.text() == ""
     assert image_variation_ui.original_image is None
     assert image_variation_ui.variation_1_image is None
     assert image_variation_ui.variation_2_image is None
@@ -89,7 +88,6 @@ def test_generate_variations(image_variation_ui):
 
     image_variation_ui.original_image = test_image
     image_variation_ui.original_pixmap = QPixmap.fromImage(test_image)
-    image_variation_ui.prompt_image_edit.setText("Generate variations")
 
     image_variation_ui.generate_variation_button.click()
     assert image_variation_ui.variation_1_image is not None

@@ -27,10 +27,7 @@ def test_edit_image(assistant):
 
 
 def test_generate_variations(assistant):
-    response = assistant.generate_variations(
-        "The cat is playing with other cats",
-        genenerate_image_bytes(),
-    )
+    response = assistant.generate_variations(genenerate_image_bytes())
     assert len(response) == 2
     assert response[0] == "Generated image"
     assert response[1] == "Generated image"
