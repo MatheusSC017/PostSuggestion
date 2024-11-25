@@ -44,6 +44,7 @@ class GenerateImageUI(QWidget):
         self.size_combobox = QComboBox()
         self.size_combobox.addItems(
             [
+                "Select",
                 "256x256",
                 "512x512",
                 "1024x1024",
@@ -60,7 +61,7 @@ class GenerateImageUI(QWidget):
         quality_label.adjustSize()
         quality_layout.addWidget(quality_label)
         self.quality_combobox = QComboBox()
-        self.quality_combobox.addItems(["standard", "hd"])
+        self.quality_combobox.addItems(["Select", "standard", "hd"])
         quality_layout.addWidget(self.quality_combobox)
         configs_layout.addLayout(quality_layout)
 
@@ -160,6 +161,7 @@ class EditImageUI(QWidget):
         self.size_combobox = QComboBox()
         self.size_combobox.addItems(
             [
+                "Select",
                 "256x256",
                 "512x512",
                 "1024x1024",
