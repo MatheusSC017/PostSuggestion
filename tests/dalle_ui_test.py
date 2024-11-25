@@ -138,6 +138,92 @@ def test_edit_image_parameter_error(edit_image_ui):
                 mock_set_text.reset_mock()
 
 
+def test_load_image_edit(edit_image_ui, tmp_path):
+    test_image = QImage(100, 100, QImage.Format.Format_RGBA64)
+    test_image.fill(Qt.GlobalColor.white)
+
+    test_image_path = f"{tmp_path}/image.png"
+    test_image.save(str(test_image_path), "PNG")
+    with patch.object(
+        QFileDialog, "getOpenFileName", return_value=(str(test_image_path), None)
+    ):
+        assert edit_image_ui.original_image is None
+        assert edit_image_ui.image is None
+        assert edit_image_ui.mask is None
+
+        edit_image_ui.load_button.click()
+
+        assert edit_image_ui.original_image is not None
+        assert edit_image_ui.image is not None
+        assert edit_image_ui.mask is not None
+
+
+def test_export_image_edit(edit_image_ui, tmp_path):
+    test_image = QImage(100, 100, QImage.Format.Format_RGBA64)
+    test_image.fill(Qt.GlobalColor.white)
+
+    test_file_path = tmp_path / "saved_image"
+    with patch.object(
+        QFileDialog, "getSaveFileName", return_value=(str(test_file_path), None)
+    ):
+        edit_image_ui.image = test_image
+        edit_image_ui.mask = test_image
+
+        edit_image_ui.export_button.click()
+
+        saved_image_path = f"{test_file_path}.png"
+        assert os.path.exists(saved_image_path), "The image file was not saved"
+
+        saved_image = QImage(saved_image_path)
+        assert not saved_image.isNull(), "The saved image is invalid"
+        assert (
+            saved_image.size() == test_image.size()
+        ), "The saved image size does not match"
+        assert (
+            saved_image.format() == test_image.format()
+        ), "The saved image format does not match"
+
+
+def test_clear_mask_edit(edit_image_ui):
+    test_image = QImage(100, 100, QImage.Format.Format_RGBA64)
+    test_image.fill(Qt.GlobalColor.white)
+
+    edit_image_ui.original_image = test_image.copy()
+    edit_image_ui.image = test_image.copy()
+    edit_image_ui.image.fill(Qt.GlobalColor.green)
+    edit_image_ui.mask = test_image.copy()
+    edit_image_ui.mask.fill(Qt.GlobalColor.red)
+
+    edit_image_ui.clear_button.click()
+    assert edit_image_ui.image == edit_image_ui.original_image
+    assert edit_image_ui.mask == edit_image_ui.original_image
+
+
+def test_save_edited_image(edit_image_ui, tmp_path):
+    test_image = QImage(100, 100, QImage.Format.Format_RGBA64)
+    test_image.fill(Qt.GlobalColor.white)
+
+    test_file_path = tmp_path / "saved_image"
+    with patch.object(
+        QFileDialog, "getSaveFileName", return_value=(str(test_file_path), None)
+    ):
+        edit_image_ui.original_image = test_image
+
+        edit_image_ui.save_image_button.click()
+
+        saved_image_path = f"{test_file_path}.png"
+        assert os.path.exists(saved_image_path), "The image file was not saved"
+
+        saved_image = QImage(saved_image_path)
+        assert not saved_image.isNull(), "The saved image is invalid"
+        assert (
+            saved_image.size() == test_image.size()
+        ), "The saved image size does not match"
+        assert (
+            saved_image.format() == test_image.format()
+        ), "The saved image format does not match"
+
+
 def test_edit_image(edit_image_ui):
     test_image = QImage(100, 100, QImage.Format.Format_RGBA64)
     test_image.fill(Qt.GlobalColor.white)
@@ -158,6 +244,22 @@ def test_initial_state_variation(image_variation_ui):
     assert image_variation_ui.original_pixmap is None
     assert image_variation_ui.variation_1_pixmap is None
     assert image_variation_ui.variation_2_pixmap is None
+
+
+def test_load_image_variation(image_variation_ui, tmp_path):
+    test_image = QImage(100, 100, QImage.Format.Format_RGBA64)
+    test_image.fill(Qt.GlobalColor.white)
+
+    test_image_path = f"{tmp_path}/image.png"
+    test_image.save(str(test_image_path), "PNG")
+    with patch.object(
+        QFileDialog, "getOpenFileName", return_value=(str(test_image_path), None)
+    ):
+        assert image_variation_ui.original_image is None
+
+        image_variation_ui.load_button.click()
+
+        assert image_variation_ui.original_image is not None
 
 
 def test_generate_variations(image_variation_ui):
