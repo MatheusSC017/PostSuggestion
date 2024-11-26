@@ -105,4 +105,4 @@ class MainWindow(QMainWindow):
         if file_name.exec():
             with open(f"{BASE_PATH}/files/{file_name.textValue()}.txt", "r") as file:
                 for post in file:
-                    self.suggestions.append(post)
+                    self.suggestions.append(post.strip())
