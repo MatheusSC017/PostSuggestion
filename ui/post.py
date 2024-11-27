@@ -178,13 +178,22 @@ class ImprovePostUI(QWidget, ErrorHandling):
         original_post_layout = QHBoxLayout()
         original_post_layout.addWidget(QLabel("Post:"))
         original_post_layout.addStretch()
+        self.selected_post_index_label = QLabel("Selected Post: - ")
+        original_post_layout.addWidget(self.selected_post_index_label)
+        original_post_layout.addStretch()
         select_post_button = QPushButton("Select Stored Posts")
         select_post_button.clicked.connect(self.open_stored_posts)
         original_post_layout.addWidget(select_post_button)
         input_layout.addLayout(original_post_layout)
+
         self.post_content_edit = QTextEdit()
         self.post_content_edit.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
         input_layout.addWidget(self.post_content_edit)
+
+        self.cancel_selection_button = QPushButton("Cancel Selection")
+        self.cancel_selection_button.setVisible(False)
+        self.cancel_selection_button.clicked.connect(self.cancel_selection)
+        input_layout.addWidget(self.cancel_selection_button)
 
         input_layout.addWidget(QLabel("Type the improvements:"))
         self.post_improvements_edit = QTextEdit()
@@ -253,6 +262,7 @@ class ImprovePostUI(QWidget, ErrorHandling):
                 Size=size,
             )
 
+        self.post_content_edit.setText(suggestion)
         post_label = QLabel(suggestion)
         post_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         post_label.setWordWrap(True)
@@ -296,7 +306,19 @@ class ImprovePostUI(QWidget, ErrorHandling):
     def set_selected_post(self, post):
         clear_layout(self.improved_posts_layout)
         self.selected_post_index = self.suggestions.index(post)
+        self.selected_post_index_label.setText(
+            f"Selected Post: {self.suggestions.index(post)}"
+        )
+        self.post_content_edit.setDisabled(True)
         self.post_content_edit.setText(post)
+        self.cancel_selection_button.setVisible(True)
+
+    def cancel_selection(self):
+        self.selected_post_index = None
+        self.selected_post_index_label.setText("Selected Post: - ")
+        self.post_content_edit.setDisabled(False)
+        self.post_content_edit.clear()
+        self.cancel_selection_button.setVisible(False)
 
 
 class TranslatePostUI(QWidget, ErrorHandling):
