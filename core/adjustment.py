@@ -64,7 +64,8 @@ class AdjustmentPostAssitant(ChatGPT):
         if len(self.adjusted_post) and len(self.undo_history):
             for _ in range(2):
                 self.messages.append(self.undo_history.pop())
-            self.adjusted_post.append(self.messages[-1]["content"])
+            post = json.loads(self.messages[-1]["content"])["post"]
+            self.adjusted_post.append(post)
 
 
 class AdjustmentPostAssitantWithoutHistory(ChatGPT):

@@ -209,7 +209,18 @@ class ImprovePostUI(QWidget, ErrorHandling):
 
         output_layout = QVBoxLayout()
 
-        output_layout.addWidget(QLabel("History"))
+        output_menu_layout = QHBoxLayout()
+        output_menu_layout.addWidget(QLabel("History"))
+        output_menu_layout.addStretch()
+        self.undo_button = QPushButton("Undo")
+        self.undo_button.setVisible(False)
+        self.undo_button.clicked.connect(self.undo_adjust)
+        self.redo_button = QPushButton("Redo")
+        self.redo_button.setVisible(False)
+        self.redo_button.clicked.connect(self.redo_adjust)
+        output_menu_layout.addWidget(self.undo_button)
+        output_menu_layout.addWidget(self.redo_button)
+        output_layout.addLayout(output_menu_layout)
         self.improved_posts_layout = QVBoxLayout()
         container = QWidget()
         container.setLayout(self.improved_posts_layout)
@@ -312,6 +323,8 @@ class ImprovePostUI(QWidget, ErrorHandling):
         self.post_content_edit.setDisabled(True)
         self.post_content_edit.setText(post)
         self.cancel_selection_button.setVisible(True)
+        self.undo_button.setVisible(True)
+        self.redo_button.setVisible(True)
 
     def cancel_selection(self):
         self.selected_post_index = None
@@ -319,6 +332,35 @@ class ImprovePostUI(QWidget, ErrorHandling):
         self.post_content_edit.setDisabled(False)
         self.post_content_edit.clear()
         self.cancel_selection_button.setVisible(False)
+        self.undo_button.setVisible(False)
+        self.redo_button.setVisible(False)
+
+    def undo_adjust(self):
+        if self.selected_post_index is not None:
+            self.adjustment_posts[self.selected_post_index].undo()
+            self.set_improvements_history_layout(
+                self.adjustment_posts[self.selected_post_index].adjusted_post[1:]
+            )
+
+    def redo_adjust(self):
+        if self.selected_post_index is not None:
+            self.adjustment_posts[self.selected_post_index].redo()
+            self.set_improvements_history_layout(
+                self.adjustment_posts[self.selected_post_index].adjusted_post[1:]
+            )
+
+    def set_improvements_history_layout(self, suggestions):
+        clear_layout(self.improved_posts_layout)
+        for suggestion in suggestions:
+            post_label = QLabel(suggestion)
+            post_label.setTextInteractionFlags(
+                Qt.TextInteractionFlag.TextSelectableByMouse
+            )
+            post_label.setWordWrap(True)
+            post_label.setContentsMargins(5, 10, 5, 20)
+            post_container = QHBoxLayout()
+            post_container.addWidget(post_label)
+            self.improved_posts_layout.addLayout(post_container)
 
 
 class TranslatePostUI(QWidget, ErrorHandling):
