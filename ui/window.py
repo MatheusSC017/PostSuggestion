@@ -1,16 +1,18 @@
+import os.path
 from pathlib import Path
 
 from dotenv import load_dotenv
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QInputDialog, QMainWindow, QMenu, QMenuBar
 
+from ui.base import ErrorHandling
 from ui.dalle import EditImageUI, GenerateImageUI, ImageVariationUI
 from ui.post import GeneratePostUI, ImprovePostUI, TranslatePostUI
 
 BASE_PATH = Path(__file__).resolve().parent.parent
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, ErrorHandling):
     suggestions = []
     main_window = None
 
@@ -103,6 +105,10 @@ class MainWindow(QMainWindow):
         file_name.setWindowTitle("Load History")
         file_name.setLabelText("Enter the file name")
         if file_name.exec():
-            with open(f"{BASE_PATH}/files/{file_name.textValue()}.txt", "r") as file:
-                for post in file:
-                    self.suggestions.append(post.strip())
+            file_path = f"{BASE_PATH}/files/{file_name.textValue()}.txt"
+            if not os.path.exists(file_path):
+                self.error_handling("File doesn't exists")
+            else:
+                with open(file_path, "r") as file:
+                    for post in file:
+                        self.suggestions.append(post.strip())
