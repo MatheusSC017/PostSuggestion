@@ -103,6 +103,7 @@ class GeneratePostUI(QWidget, ErrorHandling):
         ):
             if field in POST_VALIDATIONS and POST_VALIDATIONS[field][0](value):
                 self.error_handling(POST_VALIDATIONS[field][1])
+                self.generate_posts_button.setDisabled(False)
                 return
 
         new_suggestions = self.post_suggest_assistant.send_request(
@@ -252,6 +253,7 @@ class ImprovePostUI(QWidget, ErrorHandling):
         ):
             if field in POST_VALIDATIONS and POST_VALIDATIONS[field][0](value):
                 self.error_handling(POST_VALIDATIONS[field][1])
+                self.improve_post_button.setDisabled(False)
                 return
 
         if self.selected_post_index is None:
@@ -436,6 +438,7 @@ class TranslatePostUI(QWidget, ErrorHandling):
         for field, value in zip(["Language", "Content"], [language, post_content]):
             if field in POST_VALIDATIONS and POST_VALIDATIONS[field][0](value):
                 self.error_handling(POST_VALIDATIONS[field][1])
+                self.translate_post_button.setDisabled(False)
                 return
 
         self.translate_assistant.set_language(language)
