@@ -1,3 +1,4 @@
+import json
 from functools import partial
 from pathlib import Path
 
@@ -327,6 +328,19 @@ class ImprovePostUI(QWidget, ErrorHandling):
         self.cancel_selection_button.setVisible(True)
         self.undo_button.setVisible(True)
         self.redo_button.setVisible(True)
+
+        if self.selected_post_index in self.adjustment_posts.keys():
+            posts = self.adjustment_posts[self.selected_post_index].messages[2::2]
+            for message in posts:
+                post_label = QLabel(json.loads(message["content"])["post"])
+                post_label.setTextInteractionFlags(
+                    Qt.TextInteractionFlag.TextSelectableByMouse
+                )
+                post_label.setWordWrap(True)
+                post_label.setContentsMargins(5, 10, 5, 20)
+                post_container = QHBoxLayout()
+                post_container.addWidget(post_label)
+                self.improved_posts_layout.addLayout(post_container)
 
     def cancel_selection(self):
         self.selected_post_index = None
