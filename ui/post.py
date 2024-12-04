@@ -277,13 +277,7 @@ class ImprovePostUI(QWidget, ErrorHandling):
             )
 
         self.post_content_edit.setText(suggestion)
-        post_label = QLabel(suggestion)
-        post_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        post_label.setWordWrap(True)
-        post_label.setContentsMargins(5, 10, 5, 20)
-        post_container = QHBoxLayout()
-        post_container.addWidget(post_label)
-        self.improved_posts_layout.addLayout(post_container)
+        self.insert_improved_post(suggestion)
 
         self.improve_post_button.setDisabled(False)
 
@@ -332,15 +326,18 @@ class ImprovePostUI(QWidget, ErrorHandling):
         if self.selected_post_index in self.adjustment_posts.keys():
             posts = self.adjustment_posts[self.selected_post_index].messages[2::2]
             for message in posts:
-                post_label = QLabel(json.loads(message["content"])["post"])
-                post_label.setTextInteractionFlags(
-                    Qt.TextInteractionFlag.TextSelectableByMouse
-                )
-                post_label.setWordWrap(True)
-                post_label.setContentsMargins(5, 10, 5, 20)
-                post_container = QHBoxLayout()
-                post_container.addWidget(post_label)
-                self.improved_posts_layout.addLayout(post_container)
+                self.insert_improved_post(json.loads(message["content"])["post"])
+
+    def insert_improved_post(self, post):
+        post_label = QLabel(post)
+        post_label.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+        post_label.setWordWrap(True)
+        post_label.setContentsMargins(5, 10, 5, 20)
+        post_container = QHBoxLayout()
+        post_container.addWidget(post_label)
+        self.improved_posts_layout.addLayout(post_container)
 
     def cancel_selection(self):
         self.selected_post_index = None
