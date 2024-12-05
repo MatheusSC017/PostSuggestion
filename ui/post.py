@@ -313,40 +313,38 @@ class ImprovePostUI(QWidget, ErrorHandling):
 
     def set_selected_post(self, post):
         clear_layout(self.improved_posts_layout)
-        self.selected_post_index = self.suggestions.index(post)
-        self.selected_post_index_label.setText(
-            f"Selected Post: {self.suggestions.index(post)}"
-        )
-        self.post_content_edit.setDisabled(True)
+        self.set_configs(self.suggestions.index(post))
         self.post_content_edit.setText(post)
-        self.cancel_selection_button.setVisible(True)
-        self.undo_button.setVisible(True)
-        self.redo_button.setVisible(True)
 
         if self.selected_post_index in self.adjustment_posts.keys():
             posts = self.adjustment_posts[self.selected_post_index].messages[2::2]
             for message in posts:
                 self.insert_improved_post(json.loads(message["content"])["post"])
 
+    def cancel_selection(self):
+        self.set_configs()
+
+    def set_configs(self, index=None):
+        config_option = index is not None
+        self.selected_post_index = index
+        self.selected_post_index_label.setText(
+            f"Selected Post: {self.selected_post_index if config_option else '-'}"
+        )
+        self.post_content_edit.setDisabled(config_option)
+        if not config_option:
+            self.post_content_edit.clear()
+        self.cancel_selection_button.setVisible(config_option)
+        self.undo_button.setVisible(config_option)
+        self.redo_button.setVisible(config_option)
+
     def insert_improved_post(self, post):
         post_label = QLabel(post)
-        post_label.setTextInteractionFlags(
-            Qt.TextInteractionFlag.TextSelectableByMouse
-        )
+        post_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         post_label.setWordWrap(True)
         post_label.setContentsMargins(5, 10, 5, 20)
         post_container = QHBoxLayout()
         post_container.addWidget(post_label)
         self.improved_posts_layout.addLayout(post_container)
-
-    def cancel_selection(self):
-        self.selected_post_index = None
-        self.selected_post_index_label.setText("Selected Post: - ")
-        self.post_content_edit.setDisabled(False)
-        self.post_content_edit.clear()
-        self.cancel_selection_button.setVisible(False)
-        self.undo_button.setVisible(False)
-        self.redo_button.setVisible(False)
 
     def undo_adjust(self):
         if self.selected_post_index is not None:
