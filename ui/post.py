@@ -307,9 +307,14 @@ class ImprovePostUI(QWidget, ErrorHandling):
         raise KeyError("Post not found")
 
     def open_stored_posts(self):
-        self.stored_posts = StoredPosts(self.suggestions)
-        self.stored_posts.selectPost.connect(self.set_selected_post)
-        self.stored_posts.show()
+        if self.stored_posts == None:
+            self.stored_posts = StoredPosts(self.suggestions)
+            self.stored_posts.selectPost.connect(self.set_selected_post)
+            self.stored_posts.closeSelectPostWindow.connect(self.close_stored_posts)
+            self.stored_posts.show()
+
+    def close_stored_posts(self):
+        self.stored_posts = None
 
     def set_selected_post(self, post):
         clear_layout(self.improved_posts_layout)
@@ -456,14 +461,19 @@ class TranslatePostUI(QWidget, ErrorHandling):
 
         self.translate_post_button.setDisabled(False)
 
-    @pyqtSlot(str)
-    def selected_post(self, post):
-        self.post_content_edit.setText(post)
-
     def open_stored_posts(self):
-        self.stored_posts = StoredPosts(self.suggestions)
-        self.stored_posts.selectPost.connect(self.selected_post)
-        self.stored_posts.show()
+        if self.stored_posts == None:
+            self.stored_posts = StoredPosts(self.suggestions)
+            self.stored_posts.selectPost.connect(self.set_selected_post)
+            self.stored_posts.closeSelectPostWindow.connect(self.close_stored_posts)
+            self.stored_posts.show()
+
+    def close_stored_posts(self):
+        self.stored_posts = None
+
+    @pyqtSlot(str)
+    def set_selected_post(self, post):
+        self.post_content_edit.setText(post)
 
     def translate_message(self, message):
         return self.translate_assistant.send_request(message)
@@ -471,6 +481,7 @@ class TranslatePostUI(QWidget, ErrorHandling):
 
 class StoredPosts(QWidget):
     selectPost = pyqtSignal(str)
+    closeSelectPostWindow = pyqtSignal()
 
     def __init__(self, suggestions):
         super().__init__()
@@ -516,6 +527,10 @@ class StoredPosts(QWidget):
     def select_post(self, post):
         self.selectPost.emit(post)
         self.close()
+
+    def closeEvent(self, event):
+        self.closeSelectPostWindow.emit()
+        super().closeEvent(event)
 
 
 def clear_layout(main_layout):
