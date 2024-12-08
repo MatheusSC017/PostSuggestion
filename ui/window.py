@@ -6,6 +6,7 @@ from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import QInputDialog, QMainWindow, QMenu, QMenuBar
 
 from ui.base import ErrorHandling
+from ui.chat import ChatUI
 from ui.dalle import EditImageUI, GenerateImageUI, ImageVariationUI
 from ui.post import GeneratePostUI, ImprovePostUI, TranslatePostUI
 
@@ -64,8 +65,12 @@ class MainWindow(QMainWindow, ErrorHandling):
         self.image_variation_menu.triggered.connect(self.set_image_variation_ui)
         dalle_assistants.addAction(self.image_variation_menu)
 
+        self.chat_assistant = QAction("Chat")
+        self.chat_assistant.triggered.connect(self.set_chat_ui)
+
         menu_bar.addMenu(post_assistants)
         menu_bar.addMenu(dalle_assistants)
+        menu_bar.addAction(self.chat_assistant)
 
     def set_suggest_post_ui(self):
         self.main_window = GeneratePostUI(self.suggestions)
@@ -89,6 +94,10 @@ class MainWindow(QMainWindow, ErrorHandling):
 
     def set_image_variation_ui(self):
         self.main_window = ImageVariationUI()
+        self.setCentralWidget(self.main_window)
+
+    def set_chat_ui(self):
+        self.main_window = ChatUI()
         self.setCentralWidget(self.main_window)
 
     def save(self):
