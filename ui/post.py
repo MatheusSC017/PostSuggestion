@@ -13,6 +13,7 @@ from core.adjustment import (AdjustmentPostAssitant,
 from core.post import PostSuggestAssistant
 from core.translator import TranslatorAssistant
 from ui.base import ErrorHandling
+from ui.utils import clear_layout
 from utils.types import Emojis
 from utils.validations import POST_VALIDATIONS
 
@@ -531,14 +532,3 @@ class StoredPosts(QWidget):
     def closeEvent(self, event):
         self.closeSelectPostWindow.emit()
         super().closeEvent(event)
-
-
-def clear_layout(main_layout):
-    for i in reversed(range(main_layout.count())):
-        item = main_layout.itemAt(i)
-        widget = item.widget()
-        if widget is not None:
-            widget.setParent(None)
-            main_layout.removeWidget(widget)
-        else:
-            clear_layout(item.layout())

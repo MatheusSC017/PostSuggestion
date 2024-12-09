@@ -24,3 +24,7 @@ class Chat(ChatGPT):
         ]
         self.messages.append({"role": "assistant", "content": response})
         return response
+
+    def reset_chat(self):
+        del self.messages[1 : len(self.messages)]
+        print(self.messages)

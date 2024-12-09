@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QPushButton,
 
 from core.chat import Chat
 from ui.base import ErrorHandling
+from ui.utils import clear_layout
 
 
 class ChatUI(QWidget, ErrorHandling):
@@ -15,6 +16,13 @@ class ChatUI(QWidget, ErrorHandling):
     def __init__(self):
         super().__init__()
         main_layout = QVBoxLayout()
+
+        options_layout = QHBoxLayout()
+        options_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.clear_button = QPushButton("Clear")
+        self.clear_button.clicked.connect(self.clear_chat)
+        options_layout.addWidget(self.clear_button)
+        main_layout.addLayout(options_layout)
 
         self.messages_layout = QVBoxLayout()
         self.messages_container = QWidget()
@@ -80,3 +88,7 @@ class ChatUI(QWidget, ErrorHandling):
         self.messages_layout.addLayout(bot_response_layout)
 
         self.send_message_button.setDisabled(False)
+
+    def clear_chat(self):
+        clear_layout(self.messages_layout)
+        self.chat.reset_chat()
