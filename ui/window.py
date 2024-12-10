@@ -36,6 +36,18 @@ class MainWindow(QMainWindow, ErrorHandling):
         menu_bar = QMenuBar(self)
         self.setMenuBar(menu_bar)
 
+        post_assistants = self.set_post_submenu()
+
+        dalle_assistants = self.set_dalle_submenu()
+
+        self.chat_assistant = QAction("Chat")
+        self.chat_assistant.triggered.connect(self.set_chat_ui)
+
+        menu_bar.addMenu(post_assistants)
+        menu_bar.addMenu(dalle_assistants)
+        menu_bar.addAction(self.chat_assistant)
+
+    def set_post_submenu(self):
         post_assistants = QMenu("Posts", self)
 
         self.suggest_post_menu = QAction("Suggestion")
@@ -53,7 +65,9 @@ class MainWindow(QMainWindow, ErrorHandling):
         self.load_history = QAction("Load History")
         self.load_history.triggered.connect(self.load)
         post_assistants.addAction(self.load_history)
+        return post_assistants
 
+    def set_dalle_submenu(self):
         dalle_assistants = QMenu("Images", self)
         self.generate_image_menu = QAction("Create")
         self.generate_image_menu.triggered.connect(self.set_generate_image_ui)
@@ -64,13 +78,7 @@ class MainWindow(QMainWindow, ErrorHandling):
         self.image_variation_menu = QAction("Variations")
         self.image_variation_menu.triggered.connect(self.set_image_variation_ui)
         dalle_assistants.addAction(self.image_variation_menu)
-
-        self.chat_assistant = QAction("Chat")
-        self.chat_assistant.triggered.connect(self.set_chat_ui)
-
-        menu_bar.addMenu(post_assistants)
-        menu_bar.addMenu(dalle_assistants)
-        menu_bar.addAction(self.chat_assistant)
+        return dalle_assistants
 
     def set_suggest_post_ui(self):
         self.main_window = GeneratePostUI(self.suggestions)
