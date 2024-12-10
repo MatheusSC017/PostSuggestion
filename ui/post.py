@@ -31,8 +31,38 @@ class GeneratePostUI(QWidget, ErrorHandling):
 
         main_layout = QHBoxLayout()
 
+        input_layout = self.set_input_ui()
+
+        output_layout = self.set_output_ui()
+
+        self.set_suggested_posts_labels()
+
+        main_layout.addLayout(input_layout)
+        main_layout.addLayout(output_layout)
+
+        self.setLayout(main_layout)
+
+        self.suggestions = suggestions
+
+    def set_input_ui(self):
         input_layout = QVBoxLayout()
 
+        input_layout.addLayout(self.set_option_ui())
+
+        input_layout.addWidget(QLabel("Type your request:"))
+        self.post_content_edit = QTextEdit()
+        self.post_content_edit.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+        input_layout.addWidget(self.post_content_edit)
+
+        self.generate_posts_button = QPushButton("Generate Posts")
+        self.generate_posts_button.clicked.connect(self.generate_posts)
+        form_options_layout = QHBoxLayout()
+        form_options_layout.addStretch()
+        form_options_layout.addWidget(self.generate_posts_button)
+        input_layout.addLayout(form_options_layout)
+        return input_layout
+
+    def set_option_ui(self):
         column_options_1_layout = QVBoxLayout()
         column_options_1_layout.addWidget(QLabel("Emojis"))
         self.emojis_cb = QComboBox()
@@ -57,20 +87,9 @@ class GeneratePostUI(QWidget, ErrorHandling):
         options_layout = QHBoxLayout()
         options_layout.addLayout(column_options_1_layout)
         options_layout.addLayout(column_options_2_layout)
-        input_layout.addLayout(options_layout)
+        return options_layout
 
-        input_layout.addWidget(QLabel("Type your request:"))
-        self.post_content_edit = QTextEdit()
-        self.post_content_edit.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
-        input_layout.addWidget(self.post_content_edit)
-
-        self.generate_posts_button = QPushButton("Generate Posts")
-        self.generate_posts_button.clicked.connect(self.generate_posts)
-        form_options_layout = QHBoxLayout()
-        form_options_layout.addStretch()
-        form_options_layout.addWidget(self.generate_posts_button)
-        input_layout.addLayout(form_options_layout)
-
+    def set_output_ui(self):
         output_layout = QVBoxLayout()
 
         output_layout.addWidget(QLabel("Suggeestions"))
@@ -81,15 +100,7 @@ class GeneratePostUI(QWidget, ErrorHandling):
         posts_scroll.setWidget(container)
         posts_scroll.setWidgetResizable(True)
         output_layout.addWidget(posts_scroll)
-
-        self.set_suggested_posts_labels()
-
-        main_layout.addLayout(input_layout)
-        main_layout.addLayout(output_layout)
-
-        self.setLayout(main_layout)
-
-        self.suggestions = suggestions
+        return output_layout
 
     def generate_posts(self):
         self.generate_posts_button.setDisabled(True)
@@ -150,6 +161,18 @@ class ImprovePostUI(QWidget, ErrorHandling):
 
         main_layout = QHBoxLayout()
 
+        input_layout = self.set_input_ui()
+
+        output_layout = self.set_output_ui()
+
+        main_layout.addLayout(input_layout)
+        main_layout.addLayout(output_layout)
+
+        self.setLayout(main_layout)
+
+        self.suggestions = suggestions
+
+    def set_input_ui(self):
         input_layout = QVBoxLayout()
 
         column_options_1_layout = QVBoxLayout()
@@ -209,7 +232,9 @@ class ImprovePostUI(QWidget, ErrorHandling):
         form_options_layout.addStretch()
         form_options_layout.addWidget(self.improve_post_button)
         input_layout.addLayout(form_options_layout)
+        return input_layout
 
+    def set_output_ui(self):
         output_layout = QVBoxLayout()
 
         output_menu_layout = QHBoxLayout()
@@ -231,13 +256,7 @@ class ImprovePostUI(QWidget, ErrorHandling):
         posts_scroll.setWidget(container)
         posts_scroll.setWidgetResizable(True)
         output_layout.addWidget(posts_scroll)
-
-        main_layout.addLayout(input_layout)
-        main_layout.addLayout(output_layout)
-
-        self.setLayout(main_layout)
-
-        self.suggestions = suggestions
+        return output_layout
 
     def improve_post(self):
         self.improve_post_button.setDisabled(True)
@@ -392,6 +411,18 @@ class TranslatePostUI(QWidget, ErrorHandling):
 
         main_layout = QHBoxLayout()
 
+        input_layout = self.set_input_ui()
+
+        output_layout = self.set_output_ui()
+
+        main_layout.addLayout(input_layout)
+        main_layout.addLayout(output_layout)
+
+        self.setLayout(main_layout)
+
+        self.suggestions = suggestions
+
+    def set_input_ui(self):
         input_layout = QVBoxLayout()
 
         original_post_layout = QHBoxLayout()
@@ -411,7 +442,9 @@ class TranslatePostUI(QWidget, ErrorHandling):
         form_options_layout.addStretch()
         form_options_layout.addWidget(self.translate_post_button)
         input_layout.addLayout(form_options_layout)
+        return input_layout
 
+    def set_output_ui(self):
         output_layout = QVBoxLayout()
 
         title_label = QLabel("Translated post:")
@@ -436,13 +469,7 @@ class TranslatePostUI(QWidget, ErrorHandling):
         self.language_cb.addItems(["English", "Potuguese", "Spanish"])
         language_form_layout.addWidget(self.language_cb)
         output_layout.addLayout(language_form_layout)
-
-        main_layout.addLayout(input_layout)
-        main_layout.addLayout(output_layout)
-
-        self.setLayout(main_layout)
-
-        self.suggestions = suggestions
+        return output_layout
 
     def translate_post(self):
         self.translate_post_button.setDisabled(True)

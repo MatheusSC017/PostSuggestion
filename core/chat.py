@@ -27,4 +27,3 @@ class Chat(ChatGPT):
 
     def reset_chat(self):
         del self.messages[1 : len(self.messages)]
-        print(self.messages)

@@ -67,20 +67,12 @@ class ChatUI(QWidget, ErrorHandling):
             self.messages_container.width() * self.MESSAGE_SIZE_PERCENTAGE
         )
 
-        user_message_label = QLabel(message)
-        user_message_label.setMinimumWidth(self.message_size)
-        user_message_label.setMaximumWidth(self.message_size)
-        user_message_label.setWordWrap(True)
-        self.message_labels.append(user_message_label)
+        user_message_label = self.add_message_label(message)
         self.messages_layout.addWidget(user_message_label)
 
         response = self.chat.send_request(message)
 
-        bot_response_label = QLabel(response)
-        bot_response_label.setMinimumWidth(self.message_size)
-        bot_response_label.setMaximumWidth(self.message_size)
-        bot_response_label.setWordWrap(True)
-        self.message_labels.append(bot_response_label)
+        bot_response_label = self.add_message_label(response)
 
         bot_response_layout = QHBoxLayout()
         bot_response_layout.addWidget(bot_response_label)
@@ -88,6 +80,14 @@ class ChatUI(QWidget, ErrorHandling):
         self.messages_layout.addLayout(bot_response_layout)
 
         self.send_message_button.setDisabled(False)
+
+    def add_message_label(self, message):
+        message_label = QLabel(message)
+        message_label.setMinimumWidth(self.message_size)
+        message_label.setMaximumWidth(self.message_size)
+        message_label.setWordWrap(True)
+        self.message_labels.append(message_label)
+        return message_label
 
     def clear_chat(self):
         clear_layout(self.messages_layout)
